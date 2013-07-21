@@ -15,3 +15,11 @@ resolvers += "Sonatype snapshots" at "http://oss.sonatype.org/content/repositori
 scalacOptions += "-feature"
 
 scalacOptions += "-language:higherKinds"
+
+scalacOptions += "-Xlint"
+
+scalacOptions += "-Xfatal-warnings"
+
+scalacOptions += "-Yno-adapted-args"
+
+scalacOptions += "-Ywarn-all"

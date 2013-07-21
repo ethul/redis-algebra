@@ -4,7 +4,7 @@ package algebra
 import scalaz.Free
 
 sealed trait MapInterpreter {
-  def run[A](algebra: Free[KeyAlgebra, A], map: Map[String, String]): A =
+  def run[A](algebra: Free[RedisAlgebra, A], map: Map[String, String]): A =
     algebra.resume.fold({
       case Del(ks, h) =>
         val (b, c) = ks.foldLeft((0, map)) {
