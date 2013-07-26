@@ -12,6 +12,7 @@ sealed trait RedisInstances {
         case (a: KeyAlgebra[A]) => KeyAlgebra.keyAlgebraFunctor.map(a)(f)
         case (a: StringAlgebra[A]) => StringAlgebra.stringAlgebraFunctor.map(a)(f)
         case (a: HashAlgebra[A]) => HashAlgebra.hashAlgebraFunctor.map(a)(f)
+        case (a: ListAlgebra[A]) => ListAlgebra.listAlgebraFunctor.map(a)(f)
       }
     }
 }
