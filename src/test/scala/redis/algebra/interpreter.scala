@@ -7,7 +7,7 @@ sealed trait MapInterpreter {
   def run[A](algebra: Free[RedisAlgebra, A], map: Map[String, String]): A =
     algebra.resume.fold({
       case Del(ks, h) =>
-        val (b, c) = ks.foldLeft((0, map)) {
+        val (b, c) = ks.list.foldLeft((0, map)) {
           case ((b,c), a) =>
             if (c.contains(a)) (b + 1, c - a) else (b, c)
         }

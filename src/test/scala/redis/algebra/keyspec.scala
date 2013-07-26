@@ -3,6 +3,8 @@ package algebra
 
 import org.specs2._
 
+import scalaz.NonEmptyList._
+
 import KeyAlgebra._
 
 class KeyAlgebraSpec extends Specification { def is = s2"""
@@ -24,7 +26,7 @@ class KeyAlgebraSpec extends Specification { def is = s2"""
     result in false                                              $e5
   """
 
-  def e1 = interpreter.run(del(keya :: keyb :: nonexisting :: Nil), map) === 2
+  def e1 = interpreter.run(del(nels(keya, keyb, nonexisting)), map) === 2
 
   def e2 = interpreter.run(dump(keya), map) must beSome(serialize("a"))
 

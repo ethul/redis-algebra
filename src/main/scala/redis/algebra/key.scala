@@ -1,13 +1,13 @@
 package redis
 package algebra
 
-import scalaz.{Free, Functor}, Free.{Gosub, Return, Suspend}
+import scalaz.{Free, Functor, NonEmptyList}, Free.{Gosub, Return, Suspend}
 
 import KeyAlgebra._
 
-trait KeyAlgebra[A] extends RedisAlgebra[A]
+sealed trait KeyAlgebra[A] extends RedisAlgebra[A]
 
-final case class Del[A](keys: Seq[String], h: Int => A) extends KeyAlgebra[A]
+final case class Del[A](keys: NonEmptyList[String], h: Int => A) extends KeyAlgebra[A]
 
 final case class Dump[A](key: String, h: Option[String] => A) extends KeyAlgebra[A]
 
@@ -71,7 +71,7 @@ sealed trait KeyInstances {
 }
 
 sealed trait KeyFunctions {
-  def del(keys: Seq[String]): Free[RedisAlgebra, Int] =
+  def del(keys: NonEmptyList[String]): Free[RedisAlgebra, Int] =
     Suspend[RedisAlgebra, Int](Del(keys, Return(_)))
 
   def dump(key: String): Free[RedisAlgebra, Option[String]] =

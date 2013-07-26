@@ -1,11 +1,11 @@
 package redis
 package algebra
 
-import scalaz.{\/, Free, Functor}, Free.{Gosub, Return, Suspend}
+import scalaz.{\/, Free, Functor, NonEmptyList}, Free.{Gosub, Return, Suspend}
 
 import StringAlgebra._
 
-trait StringAlgebra[A] extends RedisAlgebra[A]
+sealed trait StringAlgebra[A] extends RedisAlgebra[A]
 
 final case class Append[A](key: String, value: String, h: Int => A) extends StringAlgebra[A]
 
@@ -31,16 +31,15 @@ final case class Incrby[A](key: String, increment: Int, h: Int => A) extends Str
 
 final case class Incrbyfloat[A](key: String, increment: Float, h: Float => A) extends StringAlgebra[A]
 
-final case class Mget[A](keys: Seq[String], h: Seq[Option[String]] => A) extends StringAlgebra[A]
+final case class Mget[A](keys: NonEmptyList[String], h: Seq[Option[String]] => A) extends StringAlgebra[A]
 
-final case class Mset[A](pairs: Seq[(String, String)], a: A) extends StringAlgebra[A]
+final case class Mset[A](pairs: NonEmptyList[(String, String)], a: A) extends StringAlgebra[A]
 
-final case class Msetnx[A](pairs: Seq[(String, String)], h: Boolean => A) extends StringAlgebra[A]
+final case class Msetnx[A](pairs: NonEmptyList[(String, String)], h: Boolean => A) extends StringAlgebra[A]
 
 final case class Psetex[A](key: String, in: Milliseconds, value: String, a: A) extends StringAlgebra[A]
 
-final case class Set[A](key: String, value: String,
-  in: Option[Seconds \/ Milliseconds], option: Option[SetOption], h: Boolean => A) extends StringAlgebra[A]
+final case class Set[A](key: String, value: String, in: Option[Seconds \/ Milliseconds], option: Option[SetOption], h: Boolean => A) extends StringAlgebra[A]
 
 final case class Setbit[A](key: String, offset: Int, value: String, h: Int => A) extends StringAlgebra[A]
 
@@ -53,9 +52,9 @@ final case class Setrange[A](key: String, offset: Int, value: String, h: Int => 
 final case class Strlen[A](key: String, h: Int => A) extends StringAlgebra[A]
 
 sealed trait BitOperation
-final case class And(dest: String, keys: Seq[String]) extends BitOperation
-final case class Or(dest: String, keys: Seq[String]) extends BitOperation
-final case class Xor(dest: String, keys: Seq[String]) extends BitOperation
+final case class And(dest: String, keys: NonEmptyList[String]) extends BitOperation
+final case class Or(dest: String, keys: NonEmptyList[String]) extends BitOperation
+final case class Xor(dest: String, keys: NonEmptyList[String]) extends BitOperation
 final case class Not(dest: String, key: String) extends BitOperation
 
 sealed trait SetOption
@@ -129,13 +128,13 @@ sealed trait StringFunctions {
   def incrbyfloat(key: String, increment: Float): Free[RedisAlgebra, Float] =
     Suspend[RedisAlgebra, Float](Incrbyfloat(key, increment, Return(_)))
 
-  def mget(keys: Seq[String]): Free[RedisAlgebra, Seq[Option[String]]] =
+  def mget(keys: NonEmptyList[String]): Free[RedisAlgebra, Seq[Option[String]]] =
     Suspend[RedisAlgebra, Seq[Option[String]]](Mget(keys, Return(_)))
 
-  def mset(pairs: Seq[(String, String)]): Free[RedisAlgebra, Unit] =
+  def mset(pairs: NonEmptyList[(String, String)]): Free[RedisAlgebra, Unit] =
     Suspend[RedisAlgebra, Unit](Mset(pairs, Return(())))
 
-  def msetnx(pairs: Seq[(String, String)]): Free[RedisAlgebra, Boolean] =
+  def msetnx(pairs: NonEmptyList[(String, String)]): Free[RedisAlgebra, Boolean] =
     Suspend[RedisAlgebra, Boolean](Msetnx(pairs, Return(_)))
 
   def psetex(key: String, in: Milliseconds, value: String): Free[RedisAlgebra, Unit] =
