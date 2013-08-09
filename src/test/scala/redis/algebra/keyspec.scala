@@ -48,5 +48,5 @@ class KeyAlgebraSpec extends Specification { def is = s2"""
 
   val map = Map(keya -> "x", keyb -> "y", keyc -> "z")
 
-  val interpreter = MapInterpreter
+  val interpreter = Interpreter
 }

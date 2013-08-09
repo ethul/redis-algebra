@@ -3,9 +3,11 @@ package algebra
 
 import scalaz.{Free, Functor, NonEmptyList}, Free.{Gosub, Return, Suspend}
 
+import typeclass.Inject, Inject._
+
 import ListAlgebra._
 
-sealed trait ListAlgebra[A] extends RedisAlgebra[A]
+sealed trait ListAlgebra[A]
 
 final case class Blpop[A](keys: NonEmptyList[String], timeout: Seconds, h: Option[(String, String)] => A)
   extends ListAlgebra[A]
@@ -88,56 +90,56 @@ sealed trait ListInstances {
 }
 
 sealed trait ListFunctions {
-  def blpop(keys: NonEmptyList[String], timeout: Seconds): Free[RedisAlgebra, Option[(String, String)]] =
-    Suspend[RedisAlgebra, Option[(String, String)]](Blpop(keys, timeout, Return(_)))
+  def blpop[F[_]: Functor](keys: NonEmptyList[String], timeout: Seconds)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[(String, String)]] =
+    inject[F, ListAlgebra, Option[(String, String)]](Blpop(keys, timeout, Return(_)))
 
-  def brpop(keys: NonEmptyList[String], timeout: Seconds): Free[RedisAlgebra, Option[(String, String)]] =
-    Suspend[RedisAlgebra, Option[(String, String)]](Brpop(keys, timeout, Return(_)))
+  def brpop[F[_]: Functor](keys: NonEmptyList[String], timeout: Seconds)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[(String, String)]] =
+    inject[F, ListAlgebra, Option[(String, String)]](Brpop(keys, timeout, Return(_)))
 
-  def brpoplpush(source: String, destination: String, timeout: Seconds): Free[RedisAlgebra, Option[String]] =
-    Suspend[RedisAlgebra, Option[String]](Brpoplpush(source, destination, timeout, Return(_)))
+  def brpoplpush[F[_]: Functor](source: String, destination: String, timeout: Seconds)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[String]] =
+    inject[F, ListAlgebra, Option[String]](Brpoplpush(source, destination, timeout, Return(_)))
 
-  def lindex(key: String, index: Int): Free[RedisAlgebra, Option[String]] =
-    Suspend[RedisAlgebra, Option[String]](Lindex(key, index, Return(_)))
+  def lindex[F[_]: Functor](key: String, index: Int)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[String]] =
+    inject[F, ListAlgebra, Option[String]](Lindex(key, index, Return(_)))
 
-  def linsert(key: String, order: Order, pivot: String, value: String): Free[RedisAlgebra, Option[Int]] =
-    Suspend[RedisAlgebra, Option[Int]](Linsert(key, order, pivot, value, Return(_)))
+  def linsert[F[_]: Functor](key: String, order: Order, pivot: String, value: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[Int]] =
+    inject[F, ListAlgebra, Option[Int]](Linsert(key, order, pivot, value, Return(_)))
 
-  def llen(key: String): Free[RedisAlgebra, Int] =
-    Suspend[RedisAlgebra, Int](Llen(key, Return(_)))
+  def llen[F[_]: Functor](key: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Int] =
+    inject[F, ListAlgebra, Int](Llen(key, Return(_)))
 
-  def lpop(key: String): Free[RedisAlgebra, Option[String]] =
-    Suspend[RedisAlgebra, Option[String]](Lpop(key, Return(_)))
+  def lpop[F[_]: Functor](key: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[String]] =
+    inject[F, ListAlgebra, Option[String]](Lpop(key, Return(_)))
 
-  def lpush(key: String, values: NonEmptyList[String]): Free[RedisAlgebra, Int] =
-    Suspend[RedisAlgebra, Int](Lpush(key, values, Return(_)))
+  def lpush[F[_]: Functor](key: String, values: NonEmptyList[String])(implicit I: Inject[ListAlgebra, F]): Free[F, Int] =
+    inject[F, ListAlgebra, Int](Lpush(key, values, Return(_)))
 
-  def lpushx(key: String, value: String): Free[RedisAlgebra, Int] =
-    Suspend[RedisAlgebra, Int](Lpushx(key, value, Return(_)))
+  def lpushx[F[_]: Functor](key: String, value: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Int] =
+    inject[F, ListAlgebra, Int](Lpushx(key, value, Return(_)))
 
-  def lrange(key: String, start: Int, stop: Int): Free[RedisAlgebra, Seq[String]] =
-    Suspend[RedisAlgebra, Seq[String]](Lrange(key, start, stop, Return(_)))
+  def lrange[F[_]: Functor](key: String, start: Int, stop: Int)(implicit I: Inject[ListAlgebra, F]): Free[F, Seq[String]] =
+    inject[F, ListAlgebra, Seq[String]](Lrange(key, start, stop, Return(_)))
 
-  def lrem(key: String, count: Int, value: String): Free[RedisAlgebra, Int] =
-    Suspend[RedisAlgebra, Int](Lrem(key, count, value, Return(_)))
+  def lrem[F[_]: Functor](key: String, count: Int, value: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Int] =
+    inject[F, ListAlgebra, Int](Lrem(key, count, value, Return(_)))
 
-  def lset(key: String, index: Int, value: String): Free[RedisAlgebra, Unit] =
-    Suspend[RedisAlgebra, Unit](Lset(key, index, value, Return(())))
+  def lset[F[_]: Functor](key: String, index: Int, value: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Unit] =
+    inject[F, ListAlgebra, Unit](Lset(key, index, value, Return(())))
 
-  def ltrim(key: String, start: Int, stop: Int): Free[RedisAlgebra, Unit] =
-    Suspend[RedisAlgebra, Unit](Ltrim(key, start, stop, Return(())))
+  def ltrim[F[_]: Functor](key: String, start: Int, stop: Int)(implicit I: Inject[ListAlgebra, F]): Free[F, Unit] =
+    inject[F, ListAlgebra, Unit](Ltrim(key, start, stop, Return(())))
 
-  def rpop(key: String): Free[RedisAlgebra, Option[String]] =
-    Suspend[RedisAlgebra, Option[String]](Rpop(key, Return(_)))
+  def rpop[F[_]: Functor](key: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[String]] =
+    inject[F, ListAlgebra, Option[String]](Rpop(key, Return(_)))
 
-  def rpoplpush(source: String, destination: String): Free[RedisAlgebra, Option[String]] =
-    Suspend[RedisAlgebra, Option[String]](Rpoplpush(source, destination, Return(_)))
+  def rpoplpush[F[_]: Functor](source: String, destination: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[String]] =
+    inject[F, ListAlgebra, Option[String]](Rpoplpush(source, destination, Return(_)))
 
-  def rpush(key: String, values: NonEmptyList[String]): Free[RedisAlgebra, Int] =
-    Suspend[RedisAlgebra, Int](Rpush(key, values, Return(_)))
+  def rpush[F[_]: Functor](key: String, values: NonEmptyList[String])(implicit I: Inject[ListAlgebra, F]): Free[F, Int] =
+    inject[F, ListAlgebra, Int](Rpush(key, values, Return(_)))
 
-  def rpushx(key: String, value: String): Free[RedisAlgebra, Int] =
-    Suspend[RedisAlgebra, Int](Rpushx(key, value, Return(_)))
+  def rpushx[F[_]: Functor](key: String, value: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Int] =
+    inject[F, ListAlgebra, Int](Rpushx(key, value, Return(_)))
 }
 
 object ListAlgebra extends ListInstances with ListFunctions

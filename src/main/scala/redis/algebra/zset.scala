@@ -3,9 +3,11 @@ package algebra
 
 import scalaz.{Free, Functor, NonEmptyList}, Free.{Gosub, Return, Suspend}
 
+import typeclass.Inject, Inject._
+
 import ZSetAlgebra._
 
-sealed trait ZSetAlgebra[A] extends RedisAlgebra[A]
+sealed trait ZSetAlgebra[A]
 
 final case class Zadd[A](key: String, pairs: NonEmptyList[(Int, String)], h: Int => A) extends ZSetAlgebra[A]
 
@@ -89,65 +91,65 @@ sealed trait ZSetInstances {
 }
 
 sealed trait ZSetFunctions {
-  def zadd(key: String, pairs: NonEmptyList[(Int, String)]): Free[RedisAlgebra, Int] =
-    Suspend[RedisAlgebra, Int](Zadd(key, pairs, Return(_)))
+  def zadd[F[_]: Functor](key: String, pairs: NonEmptyList[(Int, String)])(implicit I: Inject[ZSetAlgebra, F]): Free[F, Int] =
+    inject[F, ZSetAlgebra, Int](Zadd(key, pairs, Return(_)))
 
-  def zcard(key: String): Free[RedisAlgebra, Int] =
-    Suspend[RedisAlgebra, Int](Zcard(key, Return(_)))
+  def zcard[F[_]: Functor](key: String)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Int] =
+    inject[F, ZSetAlgebra, Int](Zcard(key, Return(_)))
 
-  def zcount(key: String, min: Endpoint, max: Endpoint): Free[RedisAlgebra, Int] =
-    Suspend[RedisAlgebra, Int](Zcount(key, min, max, Return(_)))
+  def zcount[F[_]: Functor](key: String, min: Endpoint, max: Endpoint)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Int] =
+    inject[F, ZSetAlgebra, Int](Zcount(key, min, max, Return(_)))
 
-  def zincrby(key: String, increment: Double, member: String): Free[RedisAlgebra, Double] =
-    Suspend[RedisAlgebra, Double](Zincrby(key, increment, member, Return(_)))
+  def zincrby[F[_]: Functor](key: String, increment: Double, member: String)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Double] =
+    inject[F, ZSetAlgebra, Double](Zincrby(key, increment, member, Return(_)))
 
-  def zinterstore(
+  def zinterstore[F[_]: Functor](
     destination: String, numKeys: Int, keys: NonEmptyList[String],
-    weights: Option[NonEmptyList[Double]] = None, aggregate: Aggregate = Sum): Free[RedisAlgebra, Double] =
-    Suspend[RedisAlgebra, Double](Zinterstore(destination, numKeys, keys, weights, aggregate, Return(_)))
+    weights: Option[NonEmptyList[Double]] = None, aggregate: Aggregate = Sum)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Double] =
+    inject[F, ZSetAlgebra, Double](Zinterstore(destination, numKeys, keys, weights, aggregate, Return(_)))
 
-  def zrange(
+  def zrange[F[_]: Functor](
     key: String, start: Int, stop: Int,
-    withScores: Boolean = false): Free[RedisAlgebra, Seq[(String, Option[Double])]] =
-    Suspend[RedisAlgebra, Seq[(String, Option[Double])]](Zrange(key, start, stop, withScores, Return(_)))
+    withScores: Boolean = false)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Seq[(String, Option[Double])]] =
+    inject[F, ZSetAlgebra, Seq[(String, Option[Double])]](Zrange(key, start, stop, withScores, Return(_)))
 
-  def zrangebyscore(
+  def zrangebyscore[F[_]: Functor](
     key: String, min: Endpoint, max: Endpoint,
-    withScores: Boolean = false, limit: Option[Limit] = None): Free[RedisAlgebra, Seq[(String, Option[Double])]] =
-    Suspend[RedisAlgebra, Seq[(String, Option[Double])]](Zrangebyscore(key, min, max, withScores, limit, Return(_)))
+    withScores: Boolean = false, limit: Option[Limit] = None)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Seq[(String, Option[Double])]] =
+    inject[F, ZSetAlgebra, Seq[(String, Option[Double])]](Zrangebyscore(key, min, max, withScores, limit, Return(_)))
 
-  def zrank(key: String, member: String): Free[RedisAlgebra, Option[Int]] =
-    Suspend[RedisAlgebra, Option[Int]](Zrank(key, member, Return(_)))
+  def zrank[F[_]: Functor](key: String, member: String)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Option[Int]] =
+    inject[F, ZSetAlgebra, Option[Int]](Zrank(key, member, Return(_)))
 
-  def zrem(key: String, members: NonEmptyList[String]): Free[RedisAlgebra, Int] =
-    Suspend[RedisAlgebra, Int](Zrem(key, members, Return(_)))
+  def zrem[F[_]: Functor](key: String, members: NonEmptyList[String])(implicit I: Inject[ZSetAlgebra, F]): Free[F, Int] =
+    inject[F, ZSetAlgebra, Int](Zrem(key, members, Return(_)))
 
-  def zremrangebyrank(key: String, start: Int, stop: Int): Free[RedisAlgebra, Int] =
-    Suspend[RedisAlgebra, Int](Zremrangebyrank(key, start, stop, Return(_)))
+  def zremrangebyrank[F[_]: Functor](key: String, start: Int, stop: Int)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Int] =
+    inject[F, ZSetAlgebra, Int](Zremrangebyrank(key, start, stop, Return(_)))
 
-  def zremrangebyscore(key: String, start: Endpoint, stop: Endpoint): Free[RedisAlgebra, Int] =
-    Suspend[RedisAlgebra, Int](Zremrangebyscore(key, start, stop, Return(_)))
+  def zremrangebyscore[F[_]: Functor](key: String, start: Endpoint, stop: Endpoint)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Int] =
+    inject[F, ZSetAlgebra, Int](Zremrangebyscore(key, start, stop, Return(_)))
 
-  def zrevrange(
+  def zrevrange[F[_]: Functor](
     key: String, start: Int, stop: Int,
-    withScores: Boolean = false): Free[RedisAlgebra, Seq[(String, Option[Double])]] =
-    Suspend[RedisAlgebra, Seq[(String, Option[Double])]](Zrevrange(key, start, stop, withScores, Return(_)))
+    withScores: Boolean = false)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Seq[(String, Option[Double])]] =
+    inject[F, ZSetAlgebra, Seq[(String, Option[Double])]](Zrevrange(key, start, stop, withScores, Return(_)))
 
-  def zrevrangebyscore(
+  def zrevrangebyscore[F[_]: Functor](
     key: String, min: Endpoint, max: Endpoint,
-    withScores: Boolean = false, limit: Option[Limit] = None): Free[RedisAlgebra, Seq[(String, Option[Double])]] =
-    Suspend[RedisAlgebra, Seq[(String, Option[Double])]](Zrevrangebyscore(key, min, max, withScores, limit, Return(_)))
+    withScores: Boolean = false, limit: Option[Limit] = None)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Seq[(String, Option[Double])]] =
+    inject[F, ZSetAlgebra, Seq[(String, Option[Double])]](Zrevrangebyscore(key, min, max, withScores, limit, Return(_)))
 
-  def zrevrank(key: String, member: String): Free[RedisAlgebra, Option[Int]] =
-    Suspend[RedisAlgebra, Option[Int]](Zrevrank(key, member, Return(_)))
+  def zrevrank[F[_]: Functor](key: String, member: String)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Option[Int]] =
+    inject[F, ZSetAlgebra, Option[Int]](Zrevrank(key, member, Return(_)))
 
-  def zscore(key: String, member: String): Free[RedisAlgebra, Option[Double]] =
-    Suspend[RedisAlgebra, Option[Double]](Zscore(key, member, Return(_)))
+  def zscore[F[_]: Functor](key: String, member: String)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Option[Double]] =
+    inject[F, ZSetAlgebra, Option[Double]](Zscore(key, member, Return(_)))
 
-  def zunionstore(
+  def zunionstore[F[_]: Functor](
     destination: String, numKeys: Int, keys: NonEmptyList[String],
-    weights: Option[NonEmptyList[Double]] = None, aggregate: Aggregate = Sum): Free[RedisAlgebra, Double] =
-    Suspend[RedisAlgebra, Double](Zunionstore(destination, numKeys, keys, weights, aggregate, Return(_)))
+    weights: Option[NonEmptyList[Double]] = None, aggregate: Aggregate = Sum)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Double] =
+    inject[F, ZSetAlgebra, Double](Zunionstore(destination, numKeys, keys, weights, aggregate, Return(_)))
 }
 
 object ZSetAlgebra extends ZSetInstances with ZSetFunctions

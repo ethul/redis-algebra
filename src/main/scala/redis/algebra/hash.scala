@@ -3,9 +3,11 @@ package algebra
 
 import scalaz.{Free, Functor, NonEmptyList}, Free.{Gosub, Return, Suspend}
 
+import typeclass.Inject, Inject._
+
 import HashAlgebra._
 
-sealed trait HashAlgebra[A] extends RedisAlgebra[A]
+sealed trait HashAlgebra[A]
 
 final case class Hdel[A](key: String, fields: NonEmptyList[String], h: Int => A) extends HashAlgebra[A]
 
@@ -55,44 +57,44 @@ sealed trait HashInstances {
 }
 
 sealed trait HashFunctions {
-  def hdel(key: String, fields: NonEmptyList[String]): Free[RedisAlgebra, Int] =
-    Suspend[RedisAlgebra, Int](Hdel(key, fields, Return(_)))
+  def hdel[F[_]: Functor](key: String, fields: NonEmptyList[String])(implicit I: Inject[HashAlgebra, F]): Free[F, Int] =
+    inject[F, HashAlgebra, Int](Hdel(key, fields, Return(_)))
 
-  def hexists(key: String, field: String): Free[RedisAlgebra, Boolean] =
-    Suspend[RedisAlgebra, Boolean](Hexists(key, field, Return(_)))
+  def hexists[F[_]: Functor](key: String, field: String)(implicit I: Inject[HashAlgebra, F]): Free[F, Boolean] =
+    inject[F, HashAlgebra, Boolean](Hexists(key, field, Return(_)))
 
-  def hget(key: String, field: String): Free[RedisAlgebra, Option[String]] =
-    Suspend[RedisAlgebra, Option[String]](Hget(key, field, Return(_)))
+  def hget[F[_]: Functor](key: String, field: String)(implicit I: Inject[HashAlgebra, F]): Free[F, Option[String]] =
+    inject[F, HashAlgebra, Option[String]](Hget(key, field, Return(_)))
 
-  def hgetall(key: String): Free[RedisAlgebra, Seq[(String, String)]] =
-    Suspend[RedisAlgebra, Seq[(String, String)]](Hgetall(key, Return(_)))
+  def hgetall[F[_]: Functor](key: String)(implicit I: Inject[HashAlgebra, F]): Free[F, Seq[(String, String)]] =
+    inject[F, HashAlgebra, Seq[(String, String)]](Hgetall(key, Return(_)))
 
-  def hincby(key: String, field: String, increment: Int): Free[RedisAlgebra, Int] =
-    Suspend[RedisAlgebra, Int](Hincby(key, field, increment, Return(_)))
+  def hincby[F[_]: Functor](key: String, field: String, increment: Int)(implicit I: Inject[HashAlgebra, F]): Free[F, Int] =
+    inject[F, HashAlgebra, Int](Hincby(key, field, increment, Return(_)))
 
-  def hincbyfloat(key: String, field: String, increment: Float): Free[RedisAlgebra, Float] =
-    Suspend[RedisAlgebra, Float](Hincbyfloat(key, field, increment, Return(_)))
+  def hincbyfloat[F[_]: Functor](key: String, field: String, increment: Float)(implicit I: Inject[HashAlgebra, F]): Free[F, Float] =
+    inject[F, HashAlgebra, Float](Hincbyfloat(key, field, increment, Return(_)))
 
-  def hkeys(key: String): Free[RedisAlgebra, Seq[String]] =
-    Suspend[RedisAlgebra, Seq[String]](Hkeys(key, Return(_)))
+  def hkeys[F[_]: Functor](key: String)(implicit I: Inject[HashAlgebra, F]): Free[F, Seq[String]] =
+    inject[F, HashAlgebra, Seq[String]](Hkeys(key, Return(_)))
 
-  def hlen(key: String): Free[RedisAlgebra, Int] =
-    Suspend[RedisAlgebra, Int](Hlen(key, Return(_)))
+  def hlen[F[_]: Functor](key: String)(implicit I: Inject[HashAlgebra, F]): Free[F, Int] =
+    inject[F, HashAlgebra, Int](Hlen(key, Return(_)))
 
-  def hmget(key: String, fields: NonEmptyList[String]): Free[RedisAlgebra, Seq[Option[String]]] =
-    Suspend[RedisAlgebra, Seq[Option[String]]](Hmget(key, fields, Return(_)))
+  def hmget[F[_]: Functor](key: String, fields: NonEmptyList[String])(implicit I: Inject[HashAlgebra, F]): Free[F, Seq[Option[String]]] =
+    inject[F, HashAlgebra, Seq[Option[String]]](Hmget(key, fields, Return(_)))
 
-  def hmset(key: String, pairs: NonEmptyList[(String, String)]): Free[RedisAlgebra, Unit] =
-    Suspend[RedisAlgebra, Unit](Hmset(key, pairs, Return(())))
+  def hmset[F[_]: Functor](key: String, pairs: NonEmptyList[(String, String)])(implicit I: Inject[HashAlgebra, F]): Free[F, Unit] =
+    inject[F, HashAlgebra, Unit](Hmset(key, pairs, Return(())))
 
-  def hset(key: String, field: String, value: String): Free[RedisAlgebra, Boolean] =
-    Suspend[RedisAlgebra, Boolean](Hset(key, field, value, Return(_)))
+  def hset[F[_]: Functor](key: String, field: String, value: String)(implicit I: Inject[HashAlgebra, F]): Free[F, Boolean] =
+    inject[F, HashAlgebra, Boolean](Hset(key, field, value, Return(_)))
 
-  def hsetnx(key: String, field: String, value: String): Free[RedisAlgebra, Boolean] =
-    Suspend[RedisAlgebra, Boolean](Hsetnx(key, field, value, Return(_)))
+  def hsetnx[F[_]: Functor](key: String, field: String, value: String)(implicit I: Inject[HashAlgebra, F]): Free[F, Boolean] =
+    inject[F, HashAlgebra, Boolean](Hsetnx(key, field, value, Return(_)))
 
-  def hvals(key: String): Free[RedisAlgebra, Seq[String]] =
-    Suspend[RedisAlgebra, Seq[String]](Hvals(key, Return(_)))
+  def hvals[F[_]: Functor](key: String)(implicit I: Inject[HashAlgebra, F]): Free[F, Seq[String]] =
+    inject[F, HashAlgebra, Seq[String]](Hvals(key, Return(_)))
 }
 
 object HashAlgebra extends HashInstances with HashFunctions

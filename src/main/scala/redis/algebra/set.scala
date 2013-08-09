@@ -3,9 +3,11 @@ package algebra
 
 import scalaz.{Free, Functor, NonEmptyList}, Free.{Gosub, Return, Suspend}
 
+import typeclass.Inject, Inject._
+
 import SetAlgebra._
 
-sealed trait SetAlgebra[A] extends RedisAlgebra[A]
+sealed trait SetAlgebra[A]
 
 final case class Sadd[A](key: String, members: NonEmptyList[String], h: Int => A) extends SetAlgebra[A]
 
@@ -58,47 +60,47 @@ sealed trait SetInstances {
 }
 
 sealed trait SetFunctions {
-  def sadd(key: String, members: NonEmptyList[String]): Free[RedisAlgebra, Int] =
-    Suspend[RedisAlgebra, Int](Sadd(key, members, Return(_)))
+  def sadd[F[_]: Functor](key: String, members: NonEmptyList[String])(implicit I: Inject[SetAlgebra, F]): Free[F, Int] =
+    inject[F, SetAlgebra, Int](Sadd(key, members, Return(_)))
 
-  def scard(key: String): Free[RedisAlgebra, Int] =
-    Suspend[RedisAlgebra, Int](Scard(key, Return(_)))
+  def scard[F[_]: Functor](key: String)(implicit I: Inject[SetAlgebra, F]): Free[F, Int] =
+    inject[F, SetAlgebra, Int](Scard(key, Return(_)))
 
-  def sdiff(keys: NonEmptyList[String]): Free[RedisAlgebra, Set[String]] =
-    Suspend[RedisAlgebra, Set[String]](Sdiff(keys, Return(_)))
+  def sdiff[F[_]: Functor](keys: NonEmptyList[String])(implicit I: Inject[SetAlgebra, F]): Free[F, Set[String]] =
+    inject[F, SetAlgebra, Set[String]](Sdiff(keys, Return(_)))
 
-  def sdiffstore(destination: String, keys: NonEmptyList[String]): Free[RedisAlgebra, Int] =
-    Suspend[RedisAlgebra, Int](Sdiffstore(destination, keys, Return(_)))
+  def sdiffstore[F[_]: Functor](destination: String, keys: NonEmptyList[String])(implicit I: Inject[SetAlgebra, F]): Free[F, Int] =
+    inject[F, SetAlgebra, Int](Sdiffstore(destination, keys, Return(_)))
 
-  def sinter(keys: NonEmptyList[String]): Free[RedisAlgebra, Set[String]] =
-    Suspend[RedisAlgebra, Set[String]](Sinter(keys, Return(_)))
+  def sinter[F[_]: Functor](keys: NonEmptyList[String])(implicit I: Inject[SetAlgebra, F]): Free[F, Set[String]] =
+    inject[F, SetAlgebra, Set[String]](Sinter(keys, Return(_)))
 
-  def sinterstore(destination: String, keys: NonEmptyList[String]): Free[RedisAlgebra, Int] =
-    Suspend[RedisAlgebra, Int](Sinterstore(destination, keys, Return(_)))
+  def sinterstore[F[_]: Functor](destination: String, keys: NonEmptyList[String])(implicit I: Inject[SetAlgebra, F]): Free[F, Int] =
+    inject[F, SetAlgebra, Int](Sinterstore(destination, keys, Return(_)))
 
-  def sismember(key: String, member: String): Free[RedisAlgebra, Boolean] =
-    Suspend[RedisAlgebra, Boolean](Sismember(key, member, Return(_)))
+  def sismember[F[_]: Functor](key: String, member: String)(implicit I: Inject[SetAlgebra, F]): Free[F, Boolean] =
+    inject[F, SetAlgebra, Boolean](Sismember(key, member, Return(_)))
 
-  def smembers(key: String): Free[RedisAlgebra, Set[String]] =
-    Suspend[RedisAlgebra, Set[String]](Smembers(key, Return(_)))
+  def smembers[F[_]: Functor](key: String)(implicit I: Inject[SetAlgebra, F]): Free[F, Set[String]] =
+    inject[F, SetAlgebra, Set[String]](Smembers(key, Return(_)))
 
-  def smove(source: String, destination: String, member: String): Free[RedisAlgebra, Boolean] =
-    Suspend[RedisAlgebra, Boolean](Smove(source, destination, member, Return(_)))
+  def smove[F[_]: Functor](source: String, destination: String, member: String)(implicit I: Inject[SetAlgebra, F]): Free[F, Boolean] =
+    inject[F, SetAlgebra, Boolean](Smove(source, destination, member, Return(_)))
 
-  def spop(key: String): Free[RedisAlgebra, Option[String]] =
-    Suspend[RedisAlgebra, Option[String]](Spop(key, Return(_)))
+  def spop[F[_]: Functor](key: String)(implicit I: Inject[SetAlgebra, F]): Free[F, Option[String]] =
+    inject[F, SetAlgebra, Option[String]](Spop(key, Return(_)))
 
-  def srandmember(key: String, count: Option[Int] = None): Free[RedisAlgebra, Set[String]] =
-    Suspend[RedisAlgebra, Set[String]](Srandmember(key, count, Return(_)))
+  def srandmember[F[_]: Functor](key: String, count: Option[Int] = None)(implicit I: Inject[SetAlgebra, F]): Free[F, Set[String]] =
+    inject[F, SetAlgebra, Set[String]](Srandmember(key, count, Return(_)))
 
-  def srem(key: String, members: NonEmptyList[String]): Free[RedisAlgebra, Int] =
-    Suspend[RedisAlgebra, Int](Srem(key, members, Return(_)))
+  def srem[F[_]: Functor](key: String, members: NonEmptyList[String])(implicit I: Inject[SetAlgebra, F]): Free[F, Int] =
+    inject[F, SetAlgebra, Int](Srem(key, members, Return(_)))
 
-  def sunion(keys: NonEmptyList[String]): Free[RedisAlgebra, Set[String]] =
-    Suspend[RedisAlgebra, Set[String]](Sunion(keys, Return(_)))
+  def sunion[F[_]: Functor](keys: NonEmptyList[String])(implicit I: Inject[SetAlgebra, F]): Free[F, Set[String]] =
+    inject[F, SetAlgebra, Set[String]](Sunion(keys, Return(_)))
 
-  def sunionstore(destination: String, keys: NonEmptyList[String]): Free[RedisAlgebra, Int] =
-    Suspend[RedisAlgebra, Int](Sunionstore(destination, keys, Return(_)))
+  def sunionstore[F[_]: Functor](destination: String, keys: NonEmptyList[String])(implicit I: Inject[SetAlgebra, F]): Free[F, Int] =
+    inject[F, SetAlgebra, Int](Sunionstore(destination, keys, Return(_)))
 }
 
 object SetAlgebra extends SetInstances with SetFunctions
