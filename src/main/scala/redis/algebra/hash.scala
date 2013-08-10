@@ -9,7 +9,7 @@ import HashAlgebra._
 
 sealed trait HashAlgebra[A]
 
-final case class Hdel[A](key: String, fields: NonEmptyList[String], h: Int => A) extends HashAlgebra[A]
+final case class Hdel[A](key: String, fields: NonEmptyList[String], h: Long => A) extends HashAlgebra[A]
 
 final case class Hexists[A](key: String, field: String, h: Boolean => A) extends HashAlgebra[A]
 
@@ -17,13 +17,13 @@ final case class Hget[A](key: String, field: String, h: Option[String] => A) ext
 
 final case class Hgetall[A](key: String, h: Seq[(String, String)] => A) extends HashAlgebra[A]
 
-final case class Hincby[A](key: String, field: String, increment: Int, h: Int => A) extends HashAlgebra[A]
+final case class Hincby[A](key: String, field: String, increment: Long, h: Long=> A) extends HashAlgebra[A]
 
 final case class Hincbyfloat[A](key: String, field: String, increment: Float, h: Float => A) extends HashAlgebra[A]
 
 final case class Hkeys[A](key: String, h: Seq[String] => A) extends HashAlgebra[A]
 
-final case class Hlen[A](key: String, h: Int => A) extends HashAlgebra[A]
+final case class Hlen[A](key: String, h: Long => A) extends HashAlgebra[A]
 
 final case class Hmget[A](key: String, fields: NonEmptyList[String], h: Seq[Option[String]] => A) extends HashAlgebra[A]
 
@@ -57,8 +57,8 @@ sealed trait HashInstances {
 }
 
 sealed trait HashFunctions {
-  def hdel[F[_]: Functor](key: String, fields: NonEmptyList[String])(implicit I: Inject[HashAlgebra, F]): Free[F, Int] =
-    inject[F, HashAlgebra, Int](Hdel(key, fields, Return(_)))
+  def hdel[F[_]: Functor](key: String, fields: NonEmptyList[String])(implicit I: Inject[HashAlgebra, F]): Free[F, Long] =
+    inject[F, HashAlgebra, Long](Hdel(key, fields, Return(_)))
 
   def hexists[F[_]: Functor](key: String, field: String)(implicit I: Inject[HashAlgebra, F]): Free[F, Boolean] =
     inject[F, HashAlgebra, Boolean](Hexists(key, field, Return(_)))
@@ -69,8 +69,8 @@ sealed trait HashFunctions {
   def hgetall[F[_]: Functor](key: String)(implicit I: Inject[HashAlgebra, F]): Free[F, Seq[(String, String)]] =
     inject[F, HashAlgebra, Seq[(String, String)]](Hgetall(key, Return(_)))
 
-  def hincby[F[_]: Functor](key: String, field: String, increment: Int)(implicit I: Inject[HashAlgebra, F]): Free[F, Int] =
-    inject[F, HashAlgebra, Int](Hincby(key, field, increment, Return(_)))
+  def hincby[F[_]: Functor](key: String, field: String, increment: Long)(implicit I: Inject[HashAlgebra, F]): Free[F, Long] =
+    inject[F, HashAlgebra, Long](Hincby(key, field, increment, Return(_)))
 
   def hincbyfloat[F[_]: Functor](key: String, field: String, increment: Float)(implicit I: Inject[HashAlgebra, F]): Free[F, Float] =
     inject[F, HashAlgebra, Float](Hincbyfloat(key, field, increment, Return(_)))
@@ -78,8 +78,8 @@ sealed trait HashFunctions {
   def hkeys[F[_]: Functor](key: String)(implicit I: Inject[HashAlgebra, F]): Free[F, Seq[String]] =
     inject[F, HashAlgebra, Seq[String]](Hkeys(key, Return(_)))
 
-  def hlen[F[_]: Functor](key: String)(implicit I: Inject[HashAlgebra, F]): Free[F, Int] =
-    inject[F, HashAlgebra, Int](Hlen(key, Return(_)))
+  def hlen[F[_]: Functor](key: String)(implicit I: Inject[HashAlgebra, F]): Free[F, Long] =
+    inject[F, HashAlgebra, Long](Hlen(key, Return(_)))
 
   def hmget[F[_]: Functor](key: String, fields: NonEmptyList[String])(implicit I: Inject[HashAlgebra, F]): Free[F, Seq[Option[String]]] =
     inject[F, HashAlgebra, Seq[Option[String]]](Hmget(key, fields, Return(_)))
