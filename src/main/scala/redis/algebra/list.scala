@@ -18,34 +18,34 @@ final case class Brpop[A](keys: NonEmptyList[String], timeout: Seconds, h: Optio
 final case class Brpoplpush[A](source: String, destination: String, timeout: Seconds, h: Option[String] => A)
   extends ListAlgebra[A]
 
-final case class Lindex[A](key: String, index: Int, h: Option[String] => A)
+final case class Lindex[A](key: String, index: Long, h: Option[String] => A)
   extends ListAlgebra[A]
 
-final case class Linsert[A](key: String, order: Order, pivot: String, value: String, h: Option[Int] => A)
+final case class Linsert[A](key: String, order: Order, pivot: String, value: String, h: Option[Long] => A)
   extends ListAlgebra[A]
 
-final case class Llen[A](key: String, h: Int => A)
+final case class Llen[A](key: String, h: Long => A)
   extends ListAlgebra[A]
 
 final case class Lpop[A](key: String, h: Option[String] => A)
   extends ListAlgebra[A]
 
-final case class Lpush[A](key: String, values: NonEmptyList[String], h: Int => A)
+final case class Lpush[A](key: String, values: NonEmptyList[String], h: Long => A)
   extends ListAlgebra[A]
 
-final case class Lpushx[A](key: String, value: String, h: Int => A)
+final case class Lpushx[A](key: String, value: String, h: Long => A)
   extends ListAlgebra[A]
 
-final case class Lrange[A](key: String, start: Int, stop: Int, h: Seq[String] => A)
+final case class Lrange[A](key: String, start: Long, stop: Long, h: Seq[String] => A)
   extends ListAlgebra[A]
 
-final case class Lrem[A](key: String, count: Int, value: String, h: Int => A)
+final case class Lrem[A](key: String, count: Long, value: String, h: Long => A)
   extends ListAlgebra[A]
 
-final case class Lset[A](key: String, index: Int, value: String, a: A)
+final case class Lset[A](key: String, index: Long, value: String, a: A)
   extends ListAlgebra[A]
 
-final case class Ltrim[A](key: String, start: Int, stop: Int, a: A)
+final case class Ltrim[A](key: String, start: Long, stop: Long, a: A)
   extends ListAlgebra[A]
 
 final case class Rpop[A](key: String, h: Option[String] => A)
@@ -54,10 +54,10 @@ final case class Rpop[A](key: String, h: Option[String] => A)
 final case class Rpoplpush[A](source: String, destination: String, h: Option[String] => A)
   extends ListAlgebra[A]
 
-final case class Rpush[A](key: String, values: NonEmptyList[String], h: Int => A)
+final case class Rpush[A](key: String, values: NonEmptyList[String], h: Long => A)
   extends ListAlgebra[A]
 
-final case class Rpushx[A](key: String, value: String, h: Int => A)
+final case class Rpushx[A](key: String, value: String, h: Long => A)
   extends ListAlgebra[A]
 
 sealed trait Order
@@ -99,34 +99,34 @@ sealed trait ListFunctions {
   def brpoplpush[F[_]: Functor](source: String, destination: String, timeout: Seconds)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[String]] =
     inject[F, ListAlgebra, Option[String]](Brpoplpush(source, destination, timeout, Return(_)))
 
-  def lindex[F[_]: Functor](key: String, index: Int)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[String]] =
+  def lindex[F[_]: Functor](key: String, index: Long)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[String]] =
     inject[F, ListAlgebra, Option[String]](Lindex(key, index, Return(_)))
 
-  def linsert[F[_]: Functor](key: String, order: Order, pivot: String, value: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[Int]] =
-    inject[F, ListAlgebra, Option[Int]](Linsert(key, order, pivot, value, Return(_)))
+  def linsert[F[_]: Functor](key: String, order: Order, pivot: String, value: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[Long]] =
+    inject[F, ListAlgebra, Option[Long]](Linsert(key, order, pivot, value, Return(_)))
 
-  def llen[F[_]: Functor](key: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Int] =
-    inject[F, ListAlgebra, Int](Llen(key, Return(_)))
+  def llen[F[_]: Functor](key: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Long] =
+    inject[F, ListAlgebra, Long](Llen(key, Return(_)))
 
   def lpop[F[_]: Functor](key: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[String]] =
     inject[F, ListAlgebra, Option[String]](Lpop(key, Return(_)))
 
-  def lpush[F[_]: Functor](key: String, values: NonEmptyList[String])(implicit I: Inject[ListAlgebra, F]): Free[F, Int] =
-    inject[F, ListAlgebra, Int](Lpush(key, values, Return(_)))
+  def lpush[F[_]: Functor](key: String, values: NonEmptyList[String])(implicit I: Inject[ListAlgebra, F]): Free[F, Long] =
+    inject[F, ListAlgebra, Long](Lpush(key, values, Return(_)))
 
-  def lpushx[F[_]: Functor](key: String, value: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Int] =
-    inject[F, ListAlgebra, Int](Lpushx(key, value, Return(_)))
+  def lpushx[F[_]: Functor](key: String, value: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Long] =
+    inject[F, ListAlgebra, Long](Lpushx(key, value, Return(_)))
 
-  def lrange[F[_]: Functor](key: String, start: Int, stop: Int)(implicit I: Inject[ListAlgebra, F]): Free[F, Seq[String]] =
+  def lrange[F[_]: Functor](key: String, start: Long, stop: Long)(implicit I: Inject[ListAlgebra, F]): Free[F, Seq[String]] =
     inject[F, ListAlgebra, Seq[String]](Lrange(key, start, stop, Return(_)))
 
-  def lrem[F[_]: Functor](key: String, count: Int, value: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Int] =
-    inject[F, ListAlgebra, Int](Lrem(key, count, value, Return(_)))
+  def lrem[F[_]: Functor](key: String, count: Long, value: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Long] =
+    inject[F, ListAlgebra, Long](Lrem(key, count, value, Return(_)))
 
-  def lset[F[_]: Functor](key: String, index: Int, value: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Unit] =
+  def lset[F[_]: Functor](key: String, index: Long, value: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Unit] =
     inject[F, ListAlgebra, Unit](Lset(key, index, value, Return(())))
 
-  def ltrim[F[_]: Functor](key: String, start: Int, stop: Int)(implicit I: Inject[ListAlgebra, F]): Free[F, Unit] =
+  def ltrim[F[_]: Functor](key: String, start: Long, stop: Long)(implicit I: Inject[ListAlgebra, F]): Free[F, Unit] =
     inject[F, ListAlgebra, Unit](Ltrim(key, start, stop, Return(())))
 
   def rpop[F[_]: Functor](key: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[String]] =
@@ -135,11 +135,11 @@ sealed trait ListFunctions {
   def rpoplpush[F[_]: Functor](source: String, destination: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[String]] =
     inject[F, ListAlgebra, Option[String]](Rpoplpush(source, destination, Return(_)))
 
-  def rpush[F[_]: Functor](key: String, values: NonEmptyList[String])(implicit I: Inject[ListAlgebra, F]): Free[F, Int] =
-    inject[F, ListAlgebra, Int](Rpush(key, values, Return(_)))
+  def rpush[F[_]: Functor](key: String, values: NonEmptyList[String])(implicit I: Inject[ListAlgebra, F]): Free[F, Long] =
+    inject[F, ListAlgebra, Long](Rpush(key, values, Return(_)))
 
-  def rpushx[F[_]: Functor](key: String, value: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Int] =
-    inject[F, ListAlgebra, Int](Rpushx(key, value, Return(_)))
+  def rpushx[F[_]: Functor](key: String, value: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Long] =
+    inject[F, ListAlgebra, Long](Rpushx(key, value, Return(_)))
 }
 
 object ListAlgebra extends ListInstances with ListFunctions

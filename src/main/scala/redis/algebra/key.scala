@@ -9,7 +9,7 @@ import KeyAlgebra._
 
 sealed trait KeyAlgebra[A]
 
-final case class Del[A](keys: NonEmptyList[String], h: Int => A) extends KeyAlgebra[A]
+final case class Del[A](keys: NonEmptyList[String], h: Long => A) extends KeyAlgebra[A]
 
 final case class Dump[A](key: String, h: Option[String] => A) extends KeyAlgebra[A]
 
@@ -73,8 +73,8 @@ sealed trait KeyInstances {
 }
 
 sealed trait KeyFunctions {
-  def del[F[_]: Functor](keys: NonEmptyList[String])(implicit I: Inject[KeyAlgebra, F]): Free[F, Int] =
-    inject[F, KeyAlgebra, Int](Del(keys, Return(_)))
+  def del[F[_]: Functor](keys: NonEmptyList[String])(implicit I: Inject[KeyAlgebra, F]): Free[F, Long] =
+    inject[F, KeyAlgebra, Long](Del(keys, Return(_)))
 
   def dump[F[_]: Functor](key: String)(implicit I: Inject[KeyAlgebra, F]): Free[F, Option[String]] =
     inject[F, KeyAlgebra, Option[String]](Dump(key, Return(_)))
