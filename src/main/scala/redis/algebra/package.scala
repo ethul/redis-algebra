@@ -1,6 +1,6 @@
 package redis
 
-import scalaz.Coproduct
+import scalaz.{Coproduct, Free}
 
 package object algebra {
   type Seconds = Int
@@ -21,5 +21,9 @@ package object algebra {
 
   type RedisAlgebra[A] = C4[A]
 
+  type RedisAlgebraFree[A] = Free[RedisAlgebra, A]
+
   type R[A] = RedisAlgebra[A]
+
+  type F[A] = RedisAlgebraFree[A]
 }
