@@ -3,7 +3,7 @@ package redis
 import scalaz.{Coproduct, Free}
 
 package object algebra {
-  type Seconds = Int
+  type Seconds = Long
 
   type Milliseconds = Long
 
