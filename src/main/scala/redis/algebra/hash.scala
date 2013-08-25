@@ -17,9 +17,9 @@ final case class Hget[A](key: String, field: String, h: Option[String] => A) ext
 
 final case class Hgetall[A](key: String, h: Seq[(String, String)] => A) extends HashAlgebra[A]
 
-final case class Hincby[A](key: String, field: String, increment: Long, h: Long=> A) extends HashAlgebra[A]
+final case class Hincrby[A](key: String, field: String, increment: Long, h: Long=> A) extends HashAlgebra[A]
 
-final case class Hincbyfloat[A](key: String, field: String, increment: Float, h: Float => A) extends HashAlgebra[A]
+final case class Hincrbyfloat[A](key: String, field: String, increment: Float, h: Float => A) extends HashAlgebra[A]
 
 final case class Hkeys[A](key: String, h: Seq[String] => A) extends HashAlgebra[A]
 
@@ -43,8 +43,8 @@ sealed trait HashInstances {
         case Hexists(k, s, h) => Hexists(k, s, x => f(h(x)))
         case Hget(k, s, h) => Hget(k, s, x => f(h(x)))
         case Hgetall(k, h) => Hgetall(k, x => f(h(x)))
-        case Hincby(k, s, i, h) => Hincby(k, s, i, x => f(h(x)))
-        case Hincbyfloat(k, s, i, h) => Hincbyfloat(k, s, i, x => f(h(x)))
+        case Hincrby(k, s, i, h) => Hincrby(k, s, i, x => f(h(x)))
+        case Hincrbyfloat(k, s, i, h) => Hincrbyfloat(k, s, i, x => f(h(x)))
         case Hkeys(k, h) => Hkeys(k, x => f(h(x)))
         case Hlen(k, h) => Hlen(k, x => f(h(x)))
         case Hmget(k, s, h) => Hmget(k, s, x => f(h(x)))
@@ -69,11 +69,11 @@ sealed trait HashFunctions {
   def hgetall[F[_]: Functor](key: String)(implicit I: Inject[HashAlgebra, F]): Free[F, Seq[(String, String)]] =
     inject[F, HashAlgebra, Seq[(String, String)]](Hgetall(key, Return(_)))
 
-  def hincby[F[_]: Functor](key: String, field: String, increment: Long)(implicit I: Inject[HashAlgebra, F]): Free[F, Long] =
-    inject[F, HashAlgebra, Long](Hincby(key, field, increment, Return(_)))
+  def hincrby[F[_]: Functor](key: String, field: String, increment: Long)(implicit I: Inject[HashAlgebra, F]): Free[F, Long] =
+    inject[F, HashAlgebra, Long](Hincrby(key, field, increment, Return(_)))
 
-  def hincbyfloat[F[_]: Functor](key: String, field: String, increment: Float)(implicit I: Inject[HashAlgebra, F]): Free[F, Float] =
-    inject[F, HashAlgebra, Float](Hincbyfloat(key, field, increment, Return(_)))
+  def hincrbyfloat[F[_]: Functor](key: String, field: String, increment: Float)(implicit I: Inject[HashAlgebra, F]): Free[F, Float] =
+    inject[F, HashAlgebra, Float](Hincrbyfloat(key, field, increment, Return(_)))
 
   def hkeys[F[_]: Functor](key: String)(implicit I: Inject[HashAlgebra, F]): Free[F, Seq[String]] =
     inject[F, HashAlgebra, Seq[String]](Hkeys(key, Return(_)))

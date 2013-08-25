@@ -1,6 +1,8 @@
 package redis
 package algebra
 
+import scala.collection.immutable.{Set => ScalaSet}
+
 import scalaz.{Free, Functor, NonEmptyList}, Free.{Gosub, Return, Suspend}
 
 import typeclass.Inject, Inject._
@@ -13,27 +15,27 @@ final case class Sadd[A](key: String, members: NonEmptyList[String], h: Long => 
 
 final case class Scard[A](key: String, h: Long => A) extends SetAlgebra[A]
 
-final case class Sdiff[A](keys: NonEmptyList[String], h: Set[String] => A) extends SetAlgebra[A]
+final case class Sdiff[A](keys: NonEmptyList[String], h: ScalaSet[String] => A) extends SetAlgebra[A]
 
 final case class Sdiffstore[A](destination: String, keys: NonEmptyList[String], h: Long => A) extends SetAlgebra[A]
 
-final case class Sinter[A](keys: NonEmptyList[String], h: Set[String] => A) extends SetAlgebra[A]
+final case class Sinter[A](keys: NonEmptyList[String], h: ScalaSet[String] => A) extends SetAlgebra[A]
 
 final case class Sinterstore[A](destination: String, keys: NonEmptyList[String], h: Long => A) extends SetAlgebra[A]
 
 final case class Sismember[A](key: String, member: String, h: Boolean => A) extends SetAlgebra[A]
 
-final case class Smembers[A](key: String, h: Set[String] => A) extends SetAlgebra[A]
+final case class Smembers[A](key: String, h: ScalaSet[String] => A) extends SetAlgebra[A]
 
 final case class Smove[A](source: String, destination: String, member: String, h: Boolean => A) extends SetAlgebra[A]
 
 final case class Spop[A](key: String, h: Option[String] => A) extends SetAlgebra[A]
 
-final case class Srandmember[A](key: String, count: Option[Long], h: Set[String] => A) extends SetAlgebra[A]
+final case class Srandmember[A](key: String, count: Option[Long], h: ScalaSet[String] => A) extends SetAlgebra[A]
 
 final case class Srem[A](key: String, members: NonEmptyList[String], h: Long => A) extends SetAlgebra[A]
 
-final case class Sunion[A](keys: NonEmptyList[String], h: Set[String] => A) extends SetAlgebra[A]
+final case class Sunion[A](keys: NonEmptyList[String], h: ScalaSet[String] => A) extends SetAlgebra[A]
 
 final case class Sunionstore[A](destination: String, keys: NonEmptyList[String], h: Long => A) extends SetAlgebra[A]
 
@@ -66,14 +68,14 @@ sealed trait SetFunctions {
   def scard[F[_]: Functor](key: String)(implicit I: Inject[SetAlgebra, F]): Free[F, Long] =
     inject[F, SetAlgebra, Long](Scard(key, Return(_)))
 
-  def sdiff[F[_]: Functor](keys: NonEmptyList[String])(implicit I: Inject[SetAlgebra, F]): Free[F, Set[String]] =
-    inject[F, SetAlgebra, Set[String]](Sdiff(keys, Return(_)))
+  def sdiff[F[_]: Functor](keys: NonEmptyList[String])(implicit I: Inject[SetAlgebra, F]): Free[F, ScalaSet[String]] =
+    inject[F, SetAlgebra, ScalaSet[String]](Sdiff(keys, Return(_)))
 
   def sdiffstore[F[_]: Functor](destination: String, keys: NonEmptyList[String])(implicit I: Inject[SetAlgebra, F]): Free[F, Long] =
     inject[F, SetAlgebra, Long](Sdiffstore(destination, keys, Return(_)))
 
-  def sinter[F[_]: Functor](keys: NonEmptyList[String])(implicit I: Inject[SetAlgebra, F]): Free[F, Set[String]] =
-    inject[F, SetAlgebra, Set[String]](Sinter(keys, Return(_)))
+  def sinter[F[_]: Functor](keys: NonEmptyList[String])(implicit I: Inject[SetAlgebra, F]): Free[F, ScalaSet[String]] =
+    inject[F, SetAlgebra, ScalaSet[String]](Sinter(keys, Return(_)))
 
   def sinterstore[F[_]: Functor](destination: String, keys: NonEmptyList[String])(implicit I: Inject[SetAlgebra, F]): Free[F, Long] =
     inject[F, SetAlgebra, Long](Sinterstore(destination, keys, Return(_)))
@@ -81,8 +83,8 @@ sealed trait SetFunctions {
   def sismember[F[_]: Functor](key: String, member: String)(implicit I: Inject[SetAlgebra, F]): Free[F, Boolean] =
     inject[F, SetAlgebra, Boolean](Sismember(key, member, Return(_)))
 
-  def smembers[F[_]: Functor](key: String)(implicit I: Inject[SetAlgebra, F]): Free[F, Set[String]] =
-    inject[F, SetAlgebra, Set[String]](Smembers(key, Return(_)))
+  def smembers[F[_]: Functor](key: String)(implicit I: Inject[SetAlgebra, F]): Free[F, ScalaSet[String]] =
+    inject[F, SetAlgebra, ScalaSet[String]](Smembers(key, Return(_)))
 
   def smove[F[_]: Functor](source: String, destination: String, member: String)(implicit I: Inject[SetAlgebra, F]): Free[F, Boolean] =
     inject[F, SetAlgebra, Boolean](Smove(source, destination, member, Return(_)))
@@ -90,14 +92,14 @@ sealed trait SetFunctions {
   def spop[F[_]: Functor](key: String)(implicit I: Inject[SetAlgebra, F]): Free[F, Option[String]] =
     inject[F, SetAlgebra, Option[String]](Spop(key, Return(_)))
 
-  def srandmember[F[_]: Functor](key: String, count: Option[Long] = None)(implicit I: Inject[SetAlgebra, F]): Free[F, Set[String]] =
-    inject[F, SetAlgebra, Set[String]](Srandmember(key, count, Return(_)))
+  def srandmember[F[_]: Functor](key: String, count: Option[Long] = None)(implicit I: Inject[SetAlgebra, F]): Free[F, ScalaSet[String]] =
+    inject[F, SetAlgebra, ScalaSet[String]](Srandmember(key, count, Return(_)))
 
   def srem[F[_]: Functor](key: String, members: NonEmptyList[String])(implicit I: Inject[SetAlgebra, F]): Free[F, Long] =
     inject[F, SetAlgebra, Long](Srem(key, members, Return(_)))
 
-  def sunion[F[_]: Functor](keys: NonEmptyList[String])(implicit I: Inject[SetAlgebra, F]): Free[F, Set[String]] =
-    inject[F, SetAlgebra, Set[String]](Sunion(keys, Return(_)))
+  def sunion[F[_]: Functor](keys: NonEmptyList[String])(implicit I: Inject[SetAlgebra, F]): Free[F, ScalaSet[String]] =
+    inject[F, SetAlgebra, ScalaSet[String]](Sunion(keys, Return(_)))
 
   def sunionstore[F[_]: Functor](destination: String, keys: NonEmptyList[String])(implicit I: Inject[SetAlgebra, F]): Free[F, Long] =
     inject[F, SetAlgebra, Long](Sunionstore(destination, keys, Return(_)))

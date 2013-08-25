@@ -18,7 +18,7 @@ final case class Zcount[A](key: String, min: Endpoint, max: Endpoint, h: Long =>
 final case class Zincrby[A](key: String, increment: Double, member: String, h: Double => A) extends ZSetAlgebra[A]
 
 final case class Zinterstore[A](
-  destination: String, numKeys: Long, keys: NonEmptyList[String],
+  destination: String, keys: NonEmptyList[String],
   weights: Option[NonEmptyList[Double]], aggregate: Aggregate, h: Long => A) extends ZSetAlgebra[A]
 
 final case class Zrange[A](
@@ -33,7 +33,7 @@ final case class Zrank[A](key: String, member: String, h: Option[Long] => A) ext
 
 final case class Zrem[A](key: String, members: NonEmptyList[String], h: Long => A) extends ZSetAlgebra[A]
 
-final case class Zremrangebyrank[A](key: String, start: Long, stop: Long, h: Long=> A) extends ZSetAlgebra[A]
+final case class Zremrangebyrank[A](key: String, start: Long, stop: Long, h: Long => A) extends ZSetAlgebra[A]
 
 final case class Zremrangebyscore[A](key: String, start: Endpoint, stop: Endpoint, h: Long => A) extends ZSetAlgebra[A]
 
@@ -50,7 +50,7 @@ final case class Zrevrank[A](key: String, member: String, h: Option[Long] => A) 
 final case class Zscore[A](key: String, member: String, h: Option[Double] => A) extends ZSetAlgebra[A]
 
 final case class Zunionstore[A](
-  destination: String, numKeys: Long, keys: NonEmptyList[String],
+  destination: String, keys: NonEmptyList[String],
   weights: Option[NonEmptyList[Double]], aggregate: Aggregate, h: Long => A) extends ZSetAlgebra[A]
 
 sealed trait Endpoint
@@ -74,7 +74,7 @@ sealed trait ZSetInstances {
         case Zcard(k, h) => Zcard(k, x => f(h(x)))
         case Zcount(k, m, n, h) => Zcount(k, m, n, x => f(h(x)))
         case Zincrby(k, i, m, h) => Zincrby(k, i, m, x => f(h(x)))
-        case Zinterstore(d, n, k, w, g, h) => Zinterstore(d, n, k, w, g, x => f(h(x)))
+        case Zinterstore(d, k, w, g, h) => Zinterstore(d, k, w, g, x => f(h(x)))
         case Zrange(k, s, t, w, h) => Zrange(k, s, t, w, x => f(h(x)))
         case Zrangebyscore(k, m, n, w, l, h) => Zrangebyscore(k, m, n, w, l, x => f(h(x)))
         case Zrank(k, m, h) => Zrank(k, m, x => f(h(x)))
@@ -85,7 +85,7 @@ sealed trait ZSetInstances {
         case Zrevrangebyscore(k, m, n, w, l, h) => Zrevrangebyscore(k, m, n, w, l, x => f(h(x)))
         case Zrevrank(k, m, h) => Zrevrank(k, m, x => f(h(x)))
         case Zscore(k, m, h) => Zscore(k, m, x => f(h(x)))
-        case Zunionstore(d, n, k, w, g, h) => Zunionstore(d, n, k, w, g, x => f(h(x)))
+        case Zunionstore(d, k, w, g, h) => Zunionstore(d, k, w, g, x => f(h(x)))
       }
     }
 }
@@ -104,9 +104,9 @@ sealed trait ZSetFunctions {
     inject[F, ZSetAlgebra, Double](Zincrby(key, increment, member, Return(_)))
 
   def zinterstore[F[_]: Functor](
-    destination: String, numKeys: Long, keys: NonEmptyList[String],
+    destination: String, keys: NonEmptyList[String],
     weights: Option[NonEmptyList[Double]] = None, aggregate: Aggregate = Sum)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Double] =
-    inject[F, ZSetAlgebra, Double](Zinterstore(destination, numKeys, keys, weights, aggregate, Return(_)))
+    inject[F, ZSetAlgebra, Double](Zinterstore(destination, keys, weights, aggregate, Return(_)))
 
   def zrange[F[_]: Functor](
     key: String, start: Long, stop: Long,
@@ -147,9 +147,9 @@ sealed trait ZSetFunctions {
     inject[F, ZSetAlgebra, Option[Double]](Zscore(key, member, Return(_)))
 
   def zunionstore[F[_]: Functor](
-    destination: String, numKeys: Long, keys: NonEmptyList[String],
+    destination: String, keys: NonEmptyList[String],
     weights: Option[NonEmptyList[Double]] = None, aggregate: Aggregate = Sum)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Double] =
-    inject[F, ZSetAlgebra, Double](Zunionstore(destination, numKeys, keys, weights, aggregate, Return(_)))
+    inject[F, ZSetAlgebra, Double](Zunionstore(destination, keys, weights, aggregate, Return(_)))
 }
 
 object ZSetAlgebra extends ZSetInstances with ZSetFunctions
