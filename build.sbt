@@ -6,7 +6,7 @@ scalaVersion := "2.10.2"
 
 libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.1.0-SNAPSHOT"
 
-libraryDependencies += "typeclass-inject" %% "typeclass-inject" % "0.0.1"
+libraryDependencies += "typeclass-inject" %% "typeclass-inject" % "0.0.2"
 
 libraryDependencies += "org.specs2" %% "specs2" % "2.2-scalaz-7.1.0-SNAPSHOT" % "test"
 
