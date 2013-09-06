@@ -9,56 +9,39 @@ import ListAlgebra._
 
 sealed trait ListAlgebra[A]
 
-final case class Blpop[A](keys: NonEmptyList[String], timeout: Seconds, h: Option[(String, String)] => A)
-  extends ListAlgebra[A]
+final case class Blpop[A](keys: NonEmptyList[String], timeout: Seconds, h: Option[(String, String)] => A) extends ListAlgebra[A]
 
-final case class Brpop[A](keys: NonEmptyList[String], timeout: Seconds, h: Option[(String, String)] => A)
-  extends ListAlgebra[A]
+final case class Brpop[A](keys: NonEmptyList[String], timeout: Seconds, h: Option[(String, String)] => A) extends ListAlgebra[A]
 
-final case class Brpoplpush[A](source: String, destination: String, timeout: Seconds, h: Option[String] => A)
-  extends ListAlgebra[A]
+final case class Brpoplpush[A](source: String, destination: String, timeout: Seconds, h: Option[String] => A) extends ListAlgebra[A]
 
-final case class Lindex[A](key: String, index: Long, h: Option[String] => A)
-  extends ListAlgebra[A]
+final case class Lindex[A](key: String, index: Long, h: Option[String] => A) extends ListAlgebra[A]
 
-final case class Linsert[A](key: String, position: Position, pivot: String, value: String, h: Option[Long] => A)
-  extends ListAlgebra[A]
+final case class Linsert[A](key: String, position: Position, pivot: String, value: String, h: Option[Long] => A) extends ListAlgebra[A]
 
-final case class Llen[A](key: String, h: Long => A)
-  extends ListAlgebra[A]
+final case class Llen[A](key: String, h: Long => A) extends ListAlgebra[A]
 
-final case class Lpop[A](key: String, h: Option[String] => A)
-  extends ListAlgebra[A]
+final case class Lpop[A](key: String, h: Option[String] => A) extends ListAlgebra[A]
 
-final case class Lpush[A](key: String, values: NonEmptyList[String], h: Long => A)
-  extends ListAlgebra[A]
+final case class Lpush[A](key: String, values: NonEmptyList[String], h: Long => A) extends ListAlgebra[A]
 
-final case class Lpushx[A](key: String, value: String, h: Long => A)
-  extends ListAlgebra[A]
+final case class Lpushx[A](key: String, value: String, h: Long => A) extends ListAlgebra[A]
 
-final case class Lrange[A](key: String, start: Long, stop: Long, h: Seq[String] => A)
-  extends ListAlgebra[A]
+final case class Lrange[A](key: String, start: Long, stop: Long, h: Seq[String] => A) extends ListAlgebra[A]
 
-final case class Lrem[A](key: String, count: Long, value: String, h: Long => A)
-  extends ListAlgebra[A]
+final case class Lrem[A](key: String, count: Long, value: String, h: Long => A) extends ListAlgebra[A]
 
-final case class Lset[A](key: String, index: Long, value: String, a: A)
-  extends ListAlgebra[A]
+final case class Lset[A](key: String, index: Long, value: String, a: A) extends ListAlgebra[A]
 
-final case class Ltrim[A](key: String, start: Long, stop: Long, a: A)
-  extends ListAlgebra[A]
+final case class Ltrim[A](key: String, start: Long, stop: Long, a: A) extends ListAlgebra[A]
 
-final case class Rpop[A](key: String, h: Option[String] => A)
-  extends ListAlgebra[A]
+final case class Rpop[A](key: String, h: Option[String] => A) extends ListAlgebra[A]
 
-final case class Rpoplpush[A](source: String, destination: String, h: Option[String] => A)
-  extends ListAlgebra[A]
+final case class Rpoplpush[A](source: String, destination: String, h: Option[String] => A) extends ListAlgebra[A]
 
-final case class Rpush[A](key: String, values: NonEmptyList[String], h: Long => A)
-  extends ListAlgebra[A]
+final case class Rpush[A](key: String, values: NonEmptyList[String], h: Long => A) extends ListAlgebra[A]
 
-final case class Rpushx[A](key: String, value: String, h: Long => A)
-  extends ListAlgebra[A]
+final case class Rpushx[A](key: String, value: String, h: Long => A) extends ListAlgebra[A]
 
 sealed trait Position
 case object Before extends Position
