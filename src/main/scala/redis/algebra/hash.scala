@@ -1,7 +1,7 @@
 package redis
 package algebra
 
-import scalaz.{Free, Functor, NonEmptyList}, Free.{Gosub, Return, Suspend}
+import scalaz.{Free, Functor, NonEmptyList}, Free.Return
 
 import typeclass.Inject, Inject._
 
@@ -36,7 +36,7 @@ final case class Hsetnx[A](key: String, field: String, value: String, h: Boolean
 final case class Hvals[A](key: String, h: Seq[String] => A) extends HashAlgebra[A]
 
 sealed trait HashInstances {
-  implicit def hashAlgebraFunctor: Functor[HashAlgebra] =
+  implicit val hashAlgebraFunctor: Functor[HashAlgebra] =
     new Functor[HashAlgebra] {
       def map[A, B](a: HashAlgebra[A])(f: A => B): HashAlgebra[B] = a match {
         case Hdel(k, s, h) => Hdel(k, s, x => f(h(x)))

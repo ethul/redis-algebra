@@ -1,7 +1,7 @@
 package redis
 package algebra
 
-import scalaz.{\/, Free, Functor, NonEmptyList}, Free.{Gosub, Return, Suspend}
+import scalaz.{\/, Free, Functor, NonEmptyList}, Free.Return
 
 import typeclass.Inject, Inject._
 
@@ -70,7 +70,7 @@ case object asc extends Order
 case object desc extends Order
 
 sealed trait KeyInstances {
-  implicit def keyAlgebraFunctor: Functor[KeyAlgebra] =
+  implicit val keyAlgebraFunctor: Functor[KeyAlgebra] =
     new Functor[KeyAlgebra] {
       def map[A, B](a: KeyAlgebra[A])(f: A => B): KeyAlgebra[B] = a match {
         case Del(k, h) => Del(k, x => f(h(x)))

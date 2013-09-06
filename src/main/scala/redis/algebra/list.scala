@@ -1,7 +1,7 @@
 package redis
 package algebra
 
-import scalaz.{Free, Functor, NonEmptyList}, Free.{Gosub, Return, Suspend}
+import scalaz.{Free, Functor, NonEmptyList}, Free.Return
 
 import typeclass.Inject, Inject._
 
@@ -48,7 +48,7 @@ case object Before extends Position
 case object After extends Position
 
 sealed trait ListInstances {
-  implicit def listAlgebraFunctor: Functor[ListAlgebra] =
+  implicit val listAlgebraFunctor: Functor[ListAlgebra] =
     new Functor[ListAlgebra] {
       def map[A, B](a: ListAlgebra[A])(f: A => B): ListAlgebra[B] = a match {
         case Blpop(k, t, h) => Blpop(k, t, x => f(h(x)))

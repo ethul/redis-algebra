@@ -13,13 +13,15 @@ package object algebra {
 
   type C1[A] = Coproduct[ListAlgebra, C0, A]
 
-  type C2[A] = Coproduct[SetAlgebra, C1, A]
+  type C2[A] = Coproduct[ScriptAlgebra, C1, A]
 
-  type C3[A] = Coproduct[StringAlgebra, C2, A]
+  type C3[A] = Coproduct[SetAlgebra, C2, A]
 
-  type C4[A] = Coproduct[ZSetAlgebra, C3, A]
+  type C4[A] = Coproduct[StringAlgebra, C3, A]
 
-  type RedisAlgebra[A] = C4[A]
+  type C5[A] = Coproduct[ZSetAlgebra, C4, A]
+
+  type RedisAlgebra[A] = C5[A]
 
   type RedisAlgebraFree[A] = Free[RedisAlgebra, A]
 

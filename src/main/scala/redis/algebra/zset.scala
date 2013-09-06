@@ -1,7 +1,7 @@
 package redis
 package algebra
 
-import scalaz.{Free, Functor, NonEmptyList}, Free.{Gosub, Return, Suspend}
+import scalaz.{Free, Functor, NonEmptyList}, Free.Return
 
 import typeclass.Inject, Inject._
 
@@ -55,7 +55,7 @@ case object Max extends Aggregate
 final case class Limit(offset: Long, count: Long)
 
 sealed trait ZSetInstances {
-  implicit def zsetAlgebraFunctor: Functor[ZSetAlgebra] =
+  implicit val zsetAlgebraFunctor: Functor[ZSetAlgebra] =
     new Functor[ZSetAlgebra] {
       def map[A, B](a: ZSetAlgebra[A])(f: A => B): ZSetAlgebra[B] = a match {
         case Zadd(k, p, h) => Zadd(k, p, x => f(h(x)))

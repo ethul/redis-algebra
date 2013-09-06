@@ -1,7 +1,7 @@
 package redis
 package algebra
 
-import scalaz.{\/, Free, Functor, NonEmptyList}, Free.{Gosub, Return, Suspend}
+import scalaz.{\/, Free, Functor, NonEmptyList}, Free.Return
 
 import typeclass.Inject, Inject._
 
@@ -64,7 +64,7 @@ case object Nx extends SetOption
 case object Xx extends SetOption
 
 sealed trait StringInstances {
-  implicit def stringAlgebraFunctor: Functor[StringAlgebra] =
+  implicit val stringAlgebraFunctor: Functor[StringAlgebra] =
     new Functor[StringAlgebra] {
       def map[A, B](a: StringAlgebra[A])(f: A => B): StringAlgebra[B] = a match {
         case Append(k, v, h) => Append(k, v, x => f(h(x)))

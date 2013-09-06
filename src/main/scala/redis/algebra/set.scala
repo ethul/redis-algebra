@@ -3,7 +3,7 @@ package algebra
 
 import scala.collection.immutable.{Set => ScalaSet}
 
-import scalaz.{Free, Functor, NonEmptyList}, Free.{Gosub, Return, Suspend}
+import scalaz.{Free, Functor, NonEmptyList}, Free.Return
 
 import typeclass.Inject, Inject._
 
@@ -40,7 +40,7 @@ final case class Sunion[A](keys: NonEmptyList[String], h: ScalaSet[String] => A)
 final case class Sunionstore[A](destination: String, keys: NonEmptyList[String], h: Long => A) extends SetAlgebra[A]
 
 sealed trait SetInstances {
-  implicit def setAlgebraFunctor: Functor[SetAlgebra] =
+  implicit val setAlgebraFunctor: Functor[SetAlgebra] =
     new Functor[SetAlgebra] {
       def map[A, B](a: SetAlgebra[A])(f: A => B): SetAlgebra[B] = a match {
         case Sadd(k, m, h) => Sadd(k, m, x => f(h(x)))
