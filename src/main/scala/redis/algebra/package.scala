@@ -7,19 +7,27 @@ package object algebra {
 
   type Milliseconds = Long
 
+  type Microseconds = Int
+
   type Glob = String
 
-  type C0[A] = Coproduct[HashAlgebra, KeyAlgebra, A]
+  type C0[A] = Coproduct[ConnectionAlgebra, HashAlgebra, A]
 
-  type C1[A] = Coproduct[ListAlgebra, C0, A]
+  type C1[A] = Coproduct[KeyAlgebra, C0, A]
 
-  type C2[A] = Coproduct[SetAlgebra, C1, A]
+  type C2[A] = Coproduct[ListAlgebra, C1, A]
 
-  type C3[A] = Coproduct[StringAlgebra, C2, A]
+  type C3[A] = Coproduct[ScriptAlgebra, C2, A]
 
-  type C4[A] = Coproduct[ZSetAlgebra, C3, A]
+  type C4[A] = Coproduct[ServerAlgebra, C3, A]
 
-  type RedisAlgebra[A] = C4[A]
+  type C5[A] = Coproduct[SetAlgebra, C4, A]
+
+  type C6[A] = Coproduct[StringAlgebra, C5, A]
+
+  type C7[A] = Coproduct[ZSetAlgebra, C6, A]
+
+  type RedisAlgebra[A] = C7[A]
 
   type RedisAlgebraFree[A] = Free[RedisAlgebra, A]
 

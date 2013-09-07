@@ -1,7 +1,7 @@
 package redis
 package algebra
 
-import scalaz.{\/, Free, Functor, NonEmptyList}, Free.{Gosub, Return, Suspend}
+import scalaz.{\/, Free, Functor, NonEmptyList}, Free.Return
 
 import typeclass.Inject, Inject._
 
@@ -53,43 +53,46 @@ final case class Setrange[A](key: String, offset: Int, value: String, h: Long =>
 
 final case class Strlen[A](key: String, h: Long => A) extends StringAlgebra[A]
 
-sealed trait BitOperation
-final case class And(dest: String, keys: NonEmptyList[String]) extends BitOperation
-final case class Or(dest: String, keys: NonEmptyList[String]) extends BitOperation
-final case class Xor(dest: String, keys: NonEmptyList[String]) extends BitOperation
-final case class Not(dest: String, key: String) extends BitOperation
+sealed trait StringTypes {
+  sealed trait BitOperation
+  case class And(dest: String, keys: NonEmptyList[String]) extends BitOperation
+  case class Or(dest: String, keys: NonEmptyList[String]) extends BitOperation
+  case class Xor(dest: String, keys: NonEmptyList[String]) extends BitOperation
+  case class Not(dest: String, key: String) extends BitOperation
 
-sealed trait SetOption
-case object Nx extends SetOption
-case object Xx extends SetOption
+  sealed trait SetOption
+  case object Nx extends SetOption
+  case object Xx extends SetOption
+}
 
 sealed trait StringInstances {
-  implicit def stringAlgebraFunctor: Functor[StringAlgebra] =
+  implicit val stringAlgebraFunctor: Functor[StringAlgebra] =
     new Functor[StringAlgebra] {
-      def map[A, B](a: StringAlgebra[A])(f: A => B): StringAlgebra[B] = a match {
-        case Append(k, v, h) => Append(k, v, x => f(h(x)))
-        case Bitcount(k, s, e, h) => Bitcount(k, s, e, x => f(h(x)))
-        case Bitop(o, h) => Bitop(o, x => f(h(x)))
-        case Decr(k, h) => Decr(k, x => f(h(x)))
-        case Decrby(k, d, h) => Decrby(k, d, x => f(h(x)))
-        case Get(k, h) => Get(k, x => f(h(x)))
-        case Getbit(k, o, h) => Getbit(k, o, x => f(h(x)))
-        case Getrange(k, s, e, h) => Getrange(k, s, e, x => f(h(x)))
-        case Getset(k, v, h) => Getset(k, v, x => f(h(x)))
-        case Incr(k, h) => Incr(k, x => f(h(x)))
-        case Incrby(k, i, h) => Incrby(k, i, x => f(h(x)))
-        case Incrbyfloat(k, i, h) => Incrbyfloat(k, i, x => f(h(x)))
-        case Mget(k, h) => Mget(k, x => f(h(x)))
-        case Mset(p, a) => Mset(p, f(a))
-        case Msetnx(p, h) => Msetnx(p, x => f(h(x)))
-        case Psetex(k, i, v, a) => Psetex(k, i, v, f(a))
-        case Set(k, v, i, o, h) => Set(k, v, i, o, x => f(h(x)))
-        case Setbit(k, o, v, h) => Setbit(k, o, v, x => f(h(x)))
-        case Setex(k, i, v, a) => Setex(k, i, v, f(a))
-        case Setnx(k, v, h) => Setnx(k, v, x => f(h(x)))
-        case Setrange(k, o, v, h) => Setrange(k, o, v, x => f(h(x)))
-        case Strlen(k, h) => Strlen(k, x => f(h(x)))
-      }
+      def map[A, B](a: StringAlgebra[A])(f: A => B): StringAlgebra[B] =
+        a match {
+          case Append(k, v, h) => Append(k, v, x => f(h(x)))
+          case Bitcount(k, s, e, h) => Bitcount(k, s, e, x => f(h(x)))
+          case Bitop(o, h) => Bitop(o, x => f(h(x)))
+          case Decr(k, h) => Decr(k, x => f(h(x)))
+          case Decrby(k, d, h) => Decrby(k, d, x => f(h(x)))
+          case Get(k, h) => Get(k, x => f(h(x)))
+          case Getbit(k, o, h) => Getbit(k, o, x => f(h(x)))
+          case Getrange(k, s, e, h) => Getrange(k, s, e, x => f(h(x)))
+          case Getset(k, v, h) => Getset(k, v, x => f(h(x)))
+          case Incr(k, h) => Incr(k, x => f(h(x)))
+          case Incrby(k, i, h) => Incrby(k, i, x => f(h(x)))
+          case Incrbyfloat(k, i, h) => Incrbyfloat(k, i, x => f(h(x)))
+          case Mget(k, h) => Mget(k, x => f(h(x)))
+          case Mset(p, a) => Mset(p, f(a))
+          case Msetnx(p, h) => Msetnx(p, x => f(h(x)))
+          case Psetex(k, i, v, a) => Psetex(k, i, v, f(a))
+          case Set(k, v, i, o, h) => Set(k, v, i, o, x => f(h(x)))
+          case Setbit(k, o, v, h) => Setbit(k, o, v, x => f(h(x)))
+          case Setex(k, i, v, a) => Setex(k, i, v, f(a))
+          case Setnx(k, v, h) => Setnx(k, v, x => f(h(x)))
+          case Setrange(k, o, v, h) => Setrange(k, o, v, x => f(h(x)))
+          case Strlen(k, h) => Strlen(k, x => f(h(x)))
+        }
     }
 }
 
@@ -162,4 +165,4 @@ sealed trait StringFunctions {
     inject[F, StringAlgebra, Long](Strlen(key, Return(_)))
 }
 
-object StringAlgebra extends StringInstances with StringFunctions
+object StringAlgebra extends StringTypes with StringInstances with StringFunctions

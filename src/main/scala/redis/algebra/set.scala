@@ -3,7 +3,7 @@ package algebra
 
 import scala.collection.immutable.{Set => ScalaSet}
 
-import scalaz.{Free, Functor, NonEmptyList}, Free.{Gosub, Return, Suspend}
+import scalaz.{Free, Functor, NonEmptyList}, Free.Return
 
 import typeclass.Inject, Inject._
 
@@ -40,24 +40,25 @@ final case class Sunion[A](keys: NonEmptyList[String], h: ScalaSet[String] => A)
 final case class Sunionstore[A](destination: String, keys: NonEmptyList[String], h: Long => A) extends SetAlgebra[A]
 
 sealed trait SetInstances {
-  implicit def setAlgebraFunctor: Functor[SetAlgebra] =
+  implicit val setAlgebraFunctor: Functor[SetAlgebra] =
     new Functor[SetAlgebra] {
-      def map[A, B](a: SetAlgebra[A])(f: A => B): SetAlgebra[B] = a match {
-        case Sadd(k, m, h) => Sadd(k, m, x => f(h(x)))
-        case Scard(k, h) => Scard(k, x => f(h(x)))
-        case Sdiff(k, h) => Sdiff(k, x => f(h(x)))
-        case Sdiffstore(d, k, h) => Sdiffstore(d, k, x => f(h(x)))
-        case Sinter(k, h) => Sinter(k, x => f(h(x)))
-        case Sinterstore(d, k, h) => Sinterstore(d, k, x => f(h(x)))
-        case Sismember(k, m, h) => Sismember(k, m, x => f(h(x)))
-        case Smembers(k, h) => Smembers(k, x => f(h(x)))
-        case Smove(s, d, m, h) => Smove(s, d, m, x => f(h(x)))
-        case Spop(k, h) => Spop(k, x => f(h(x)))
-        case Srandmember(k, c, h) => Srandmember(k, c, x => f(h(x)))
-        case Srem(k, m, h) => Srem(k, m, x => f(h(x)))
-        case Sunion(k, h) => Sunion(k, x => f(h(x)))
-        case Sunionstore(d, k, h) => Sunionstore(d, k, x => f(h(x)))
-      }
+      def map[A, B](a: SetAlgebra[A])(f: A => B): SetAlgebra[B] =
+        a match {
+          case Sadd(k, m, h) => Sadd(k, m, x => f(h(x)))
+          case Scard(k, h) => Scard(k, x => f(h(x)))
+          case Sdiff(k, h) => Sdiff(k, x => f(h(x)))
+          case Sdiffstore(d, k, h) => Sdiffstore(d, k, x => f(h(x)))
+          case Sinter(k, h) => Sinter(k, x => f(h(x)))
+          case Sinterstore(d, k, h) => Sinterstore(d, k, x => f(h(x)))
+          case Sismember(k, m, h) => Sismember(k, m, x => f(h(x)))
+          case Smembers(k, h) => Smembers(k, x => f(h(x)))
+          case Smove(s, d, m, h) => Smove(s, d, m, x => f(h(x)))
+          case Spop(k, h) => Spop(k, x => f(h(x)))
+          case Srandmember(k, c, h) => Srandmember(k, c, x => f(h(x)))
+          case Srem(k, m, h) => Srem(k, m, x => f(h(x)))
+          case Sunion(k, h) => Sunion(k, x => f(h(x)))
+          case Sunionstore(d, k, h) => Sunionstore(d, k, x => f(h(x)))
+        }
     }
 }
 
