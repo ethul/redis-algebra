@@ -10,6 +10,13 @@ sealed abstract class Interpreter[F[_] : Functor] {
 }
 
 sealed trait InterpreterInstances {
+  implicit val connectionAlgebraInterpreter: Interpreter[ConnectionAlgebra] =
+    new Interpreter[ConnectionAlgebra] {
+      def runAlgebra[A](algebra: ConnectionAlgebra[Mem => (A, Mem)], mem: Mem) =
+        algebra match {
+          case _ => ???
+        }
+    }
   implicit val hashAlgebraInterpreter: Interpreter[HashAlgebra] =
     new Interpreter[HashAlgebra] {
       def runAlgebra[A](algebra: HashAlgebra[Mem => (A, Mem)], mem: Mem) =
@@ -37,6 +44,14 @@ sealed trait InterpreterInstances {
   implicit val listAlgebraInterpreter: Interpreter[ListAlgebra] =
     new Interpreter[ListAlgebra] {
       def runAlgebra[A](algebra: ListAlgebra[Mem => (A, Mem)], mem: Mem) =
+        algebra match {
+          case _ => ???
+        }
+    }
+
+  implicit val scriptAlgebraInterpreter: Interpreter[ScriptAlgebra] =
+    new Interpreter[ScriptAlgebra] {
+      def runAlgebra[A](algebra: ScriptAlgebra[Mem => (A, Mem)], mem: Mem) =
         algebra match {
           case _ => ???
         }

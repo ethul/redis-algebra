@@ -72,28 +72,29 @@ case object desc extends Order
 sealed trait KeyInstances {
   implicit val keyAlgebraFunctor: Functor[KeyAlgebra] =
     new Functor[KeyAlgebra] {
-      def map[A, B](a: KeyAlgebra[A])(f: A => B): KeyAlgebra[B] = a match {
-        case Del(k, h) => Del(k, x => f(h(x)))
-        case Dump(k, h) => Dump(k, x => f(h(x)))
-        case Exists(k, h) => Exists(k, x => f(h(x)))
-        case Expire(k, i, h) => Expire(k, i, x => f(h(x)))
-        case Expireat(k, t, h) => Expireat(k, t, x => f(h(x)))
-        case Keys(k, h) => Keys(k, x => f(h(x)))
-        case Migrate(o, p, k, t, d, c, r, h) => Migrate(o, p, k, t, d, c, r, x => f(h(x)))
-        case Move(k, d, h) => Move(k, d, x => f(h(x)))
-        case Object(s, h) => Object(s, x => f(h(x)))
-        case Persist(k, h) => Persist(k, x => f(h(x)))
-        case Pexpire(k, i, h) => Pexpire(k, i, x => f(h(x)))
-        case Pexpireat(k, t, h) => Pexpireat(k, t, x => f(h(x)))
-        case Pttl(k, h) => Pttl(k, x => f(h(x)))
-        case Randomkey(h) => Randomkey(x => f(h(x)))
-        case Rename(k, n, a) => Rename(k, n, f(a))
-        case Renamenx(k, n, h) => Renamenx(k, n, x => f(h(x)))
-        case Restore(k, t, v, a) => Restore(k, t, v, f(a))
-        case Sort(k, b, l, g, o, a, s, h) => Sort(k, b, l, g, o, a, s, x => f(h(x)))
-        case Ttl(k, h) => Ttl(k, x => f(h(x)))
-        case Type(k, h) => Type(k, x => f(h(x)))
-      }
+      def map[A, B](a: KeyAlgebra[A])(f: A => B): KeyAlgebra[B] =
+        a match {
+          case Del(k, h) => Del(k, x => f(h(x)))
+          case Dump(k, h) => Dump(k, x => f(h(x)))
+          case Exists(k, h) => Exists(k, x => f(h(x)))
+          case Expire(k, i, h) => Expire(k, i, x => f(h(x)))
+          case Expireat(k, t, h) => Expireat(k, t, x => f(h(x)))
+          case Keys(k, h) => Keys(k, x => f(h(x)))
+          case Migrate(o, p, k, t, d, c, r, h) => Migrate(o, p, k, t, d, c, r, x => f(h(x)))
+          case Move(k, d, h) => Move(k, d, x => f(h(x)))
+          case Object(s, h) => Object(s, x => f(h(x)))
+          case Persist(k, h) => Persist(k, x => f(h(x)))
+          case Pexpire(k, i, h) => Pexpire(k, i, x => f(h(x)))
+          case Pexpireat(k, t, h) => Pexpireat(k, t, x => f(h(x)))
+          case Pttl(k, h) => Pttl(k, x => f(h(x)))
+          case Randomkey(h) => Randomkey(x => f(h(x)))
+          case Rename(k, n, a) => Rename(k, n, f(a))
+          case Renamenx(k, n, h) => Renamenx(k, n, x => f(h(x)))
+          case Restore(k, t, v, a) => Restore(k, t, v, f(a))
+          case Sort(k, b, l, g, o, a, s, h) => Sort(k, b, l, g, o, a, s, x => f(h(x)))
+          case Ttl(k, h) => Ttl(k, x => f(h(x)))
+          case Type(k, h) => Type(k, x => f(h(x)))
+        }
     }
 }
 

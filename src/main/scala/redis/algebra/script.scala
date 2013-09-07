@@ -32,14 +32,15 @@ case object LuaUnit extends LuaValue
 sealed trait ScriptInstances {
   implicit val scriptAlgebraFunctor: Functor[ScriptAlgebra] =
     new Functor[ScriptAlgebra] {
-      def map[A, B](a: ScriptAlgebra[A])(f: A => B): ScriptAlgebra[B] = a match {
-        case Eval(s, k, a, h) => Eval(s, k, a, x => f(h(x)))
-        case Evalsha(s, k, a, h) => Evalsha(s, k, a, x => f(h(x)))
-        case Scriptexists(s, h) => Scriptexists(s, x => f(h(x)))
-        case Scriptflush(a) => Scriptflush(f(a))
-        case Scriptkill(a) => Scriptkill(f(a))
-        case Scriptload(s, h) => Scriptload(s, x => f(h(x)))
-      }
+      def map[A, B](a: ScriptAlgebra[A])(f: A => B): ScriptAlgebra[B] =
+        a match {
+          case Eval(s, k, a, h) => Eval(s, k, a, x => f(h(x)))
+          case Evalsha(s, k, a, h) => Evalsha(s, k, a, x => f(h(x)))
+          case Scriptexists(s, h) => Scriptexists(s, x => f(h(x)))
+          case Scriptflush(a) => Scriptflush(f(a))
+          case Scriptkill(a) => Scriptkill(f(a))
+          case Scriptload(s, h) => Scriptload(s, x => f(h(x)))
+        }
     }
 }
 

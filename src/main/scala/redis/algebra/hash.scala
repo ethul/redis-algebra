@@ -38,21 +38,22 @@ final case class Hvals[A](key: String, h: Seq[String] => A) extends HashAlgebra[
 sealed trait HashInstances {
   implicit val hashAlgebraFunctor: Functor[HashAlgebra] =
     new Functor[HashAlgebra] {
-      def map[A, B](a: HashAlgebra[A])(f: A => B): HashAlgebra[B] = a match {
-        case Hdel(k, s, h) => Hdel(k, s, x => f(h(x)))
-        case Hexists(k, s, h) => Hexists(k, s, x => f(h(x)))
-        case Hget(k, s, h) => Hget(k, s, x => f(h(x)))
-        case Hgetall(k, h) => Hgetall(k, x => f(h(x)))
-        case Hincrby(k, s, i, h) => Hincrby(k, s, i, x => f(h(x)))
-        case Hincrbyfloat(k, s, i, h) => Hincrbyfloat(k, s, i, x => f(h(x)))
-        case Hkeys(k, h) => Hkeys(k, x => f(h(x)))
-        case Hlen(k, h) => Hlen(k, x => f(h(x)))
-        case Hmget(k, s, h) => Hmget(k, s, x => f(h(x)))
-        case Hmset(k, p, a) => Hmset(k, p, f(a))
-        case Hset(k, s, v, h) => Hset(k, s, v, x => f(h(x)))
-        case Hsetnx(k, s, v, h) => Hsetnx(k, s, v, x => f(h(x)))
-        case Hvals(k, h) => Hvals(k, x => f(h(x)))
-      }
+      def map[A, B](a: HashAlgebra[A])(f: A => B): HashAlgebra[B] =
+        a match {
+          case Hdel(k, s, h) => Hdel(k, s, x => f(h(x)))
+          case Hexists(k, s, h) => Hexists(k, s, x => f(h(x)))
+          case Hget(k, s, h) => Hget(k, s, x => f(h(x)))
+          case Hgetall(k, h) => Hgetall(k, x => f(h(x)))
+          case Hincrby(k, s, i, h) => Hincrby(k, s, i, x => f(h(x)))
+          case Hincrbyfloat(k, s, i, h) => Hincrbyfloat(k, s, i, x => f(h(x)))
+          case Hkeys(k, h) => Hkeys(k, x => f(h(x)))
+          case Hlen(k, h) => Hlen(k, x => f(h(x)))
+          case Hmget(k, s, h) => Hmget(k, s, x => f(h(x)))
+          case Hmset(k, p, a) => Hmset(k, p, f(a))
+          case Hset(k, s, v, h) => Hset(k, s, v, x => f(h(x)))
+          case Hsetnx(k, s, v, h) => Hsetnx(k, s, v, x => f(h(x)))
+          case Hvals(k, h) => Hvals(k, x => f(h(x)))
+        }
     }
 }
 

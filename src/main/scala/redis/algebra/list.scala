@@ -50,25 +50,26 @@ case object After extends Position
 sealed trait ListInstances {
   implicit val listAlgebraFunctor: Functor[ListAlgebra] =
     new Functor[ListAlgebra] {
-      def map[A, B](a: ListAlgebra[A])(f: A => B): ListAlgebra[B] = a match {
-        case Blpop(k, t, h) => Blpop(k, t, x => f(h(x)))
-        case Brpop(k, t, h) => Brpop(k, t, x => f(h(x)))
-        case Brpoplpush(s, d, t, h) => Brpoplpush(s, d, t, x => f(h(x)))
-        case Lindex(k, i, h) => Lindex(k, i, x => f(h(x)))
-        case Linsert(k, p, i, v, h) => Linsert(k, p, i, v, x => f(h(x)))
-        case Llen(k, h) => Llen(k, x => f(h(x)))
-        case Lpop(k, h) => Lpop(k, x => f(h(x)))
-        case Lpush(k, v, h) => Lpush(k, v, x => f(h(x)))
-        case Lpushx(k, v, h) => Lpushx(k, v, x => f(h(x)))
-        case Lrange(k, s, t, h) => Lrange(k, s, t, x => f(h(x)))
-        case Lrem(k, c, v, h) => Lrem(k, c, v, x => f(h(x)))
-        case Lset(k, i, v, a) => Lset(k, i, v, f(a))
-        case Ltrim(k, s, t, a) => Ltrim(k, s, t, f(a))
-        case Rpop(k, h) => Rpop(k, x => f(h(x)))
-        case Rpoplpush(s, d, h) => Rpoplpush(s, d, x => f(h(x)))
-        case Rpush(k, v, h) => Rpush(k, v, x => f(h(x)))
-        case Rpushx(k, v, h) => Rpushx(k, v, x => f(h(x)))
-      }
+      def map[A, B](a: ListAlgebra[A])(f: A => B): ListAlgebra[B] =
+        a match {
+          case Blpop(k, t, h) => Blpop(k, t, x => f(h(x)))
+          case Brpop(k, t, h) => Brpop(k, t, x => f(h(x)))
+          case Brpoplpush(s, d, t, h) => Brpoplpush(s, d, t, x => f(h(x)))
+          case Lindex(k, i, h) => Lindex(k, i, x => f(h(x)))
+          case Linsert(k, p, i, v, h) => Linsert(k, p, i, v, x => f(h(x)))
+          case Llen(k, h) => Llen(k, x => f(h(x)))
+          case Lpop(k, h) => Lpop(k, x => f(h(x)))
+          case Lpush(k, v, h) => Lpush(k, v, x => f(h(x)))
+          case Lpushx(k, v, h) => Lpushx(k, v, x => f(h(x)))
+          case Lrange(k, s, t, h) => Lrange(k, s, t, x => f(h(x)))
+          case Lrem(k, c, v, h) => Lrem(k, c, v, x => f(h(x)))
+          case Lset(k, i, v, a) => Lset(k, i, v, f(a))
+          case Ltrim(k, s, t, a) => Ltrim(k, s, t, f(a))
+          case Rpop(k, h) => Rpop(k, x => f(h(x)))
+          case Rpoplpush(s, d, h) => Rpoplpush(s, d, x => f(h(x)))
+          case Rpush(k, v, h) => Rpush(k, v, x => f(h(x)))
+          case Rpushx(k, v, h) => Rpushx(k, v, x => f(h(x)))
+        }
     }
 }
 

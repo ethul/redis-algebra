@@ -57,24 +57,25 @@ final case class Limit(offset: Long, count: Long)
 sealed trait ZSetInstances {
   implicit val zsetAlgebraFunctor: Functor[ZSetAlgebra] =
     new Functor[ZSetAlgebra] {
-      def map[A, B](a: ZSetAlgebra[A])(f: A => B): ZSetAlgebra[B] = a match {
-        case Zadd(k, p, h) => Zadd(k, p, x => f(h(x)))
-        case Zcard(k, h) => Zcard(k, x => f(h(x)))
-        case Zcount(k, m, n, h) => Zcount(k, m, n, x => f(h(x)))
-        case Zincrby(k, i, m, h) => Zincrby(k, i, m, x => f(h(x)))
-        case Zinterstore(d, k, w, g, h) => Zinterstore(d, k, w, g, x => f(h(x)))
-        case Zrange(k, s, t, w, h) => Zrange(k, s, t, w, x => f(h(x)))
-        case Zrangebyscore(k, m, n, w, l, h) => Zrangebyscore(k, m, n, w, l, x => f(h(x)))
-        case Zrank(k, m, h) => Zrank(k, m, x => f(h(x)))
-        case Zrem(k, m, h) => Zrem(k, m, x => f(h(x)))
-        case Zremrangebyrank(k, s, t, h) => Zremrangebyrank(k, s, t, x => f(h(x)))
-        case Zremrangebyscore(k, s, t, h) => Zremrangebyscore(k, s, t, x => f(h(x)))
-        case Zrevrange(k, s, t, w, h) => Zrevrange(k, s, t, w, x => f(h(x)))
-        case Zrevrangebyscore(k, m, n, w, l, h) => Zrevrangebyscore(k, m, n, w, l, x => f(h(x)))
-        case Zrevrank(k, m, h) => Zrevrank(k, m, x => f(h(x)))
-        case Zscore(k, m, h) => Zscore(k, m, x => f(h(x)))
-        case Zunionstore(d, k, w, g, h) => Zunionstore(d, k, w, g, x => f(h(x)))
-      }
+      def map[A, B](a: ZSetAlgebra[A])(f: A => B): ZSetAlgebra[B] =
+        a match {
+          case Zadd(k, p, h) => Zadd(k, p, x => f(h(x)))
+          case Zcard(k, h) => Zcard(k, x => f(h(x)))
+          case Zcount(k, m, n, h) => Zcount(k, m, n, x => f(h(x)))
+          case Zincrby(k, i, m, h) => Zincrby(k, i, m, x => f(h(x)))
+          case Zinterstore(d, k, w, g, h) => Zinterstore(d, k, w, g, x => f(h(x)))
+          case Zrange(k, s, t, w, h) => Zrange(k, s, t, w, x => f(h(x)))
+          case Zrangebyscore(k, m, n, w, l, h) => Zrangebyscore(k, m, n, w, l, x => f(h(x)))
+          case Zrank(k, m, h) => Zrank(k, m, x => f(h(x)))
+          case Zrem(k, m, h) => Zrem(k, m, x => f(h(x)))
+          case Zremrangebyrank(k, s, t, h) => Zremrangebyrank(k, s, t, x => f(h(x)))
+          case Zremrangebyscore(k, s, t, h) => Zremrangebyscore(k, s, t, x => f(h(x)))
+          case Zrevrange(k, s, t, w, h) => Zrevrange(k, s, t, w, x => f(h(x)))
+          case Zrevrangebyscore(k, m, n, w, l, h) => Zrevrangebyscore(k, m, n, w, l, x => f(h(x)))
+          case Zrevrank(k, m, h) => Zrevrank(k, m, x => f(h(x)))
+          case Zscore(k, m, h) => Zscore(k, m, x => f(h(x)))
+          case Zunionstore(d, k, w, g, h) => Zunionstore(d, k, w, g, x => f(h(x)))
+        }
     }
 }
 
