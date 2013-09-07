@@ -1,11 +1,7 @@
 package redis
 package algebra
 
-import scalaz.{Free, Functor, NonEmptyList}, Free.Return
-
-import typeclass.Inject, Inject._
-
-import ListAlgebra._
+import scalaz.{Free, Functor, Inject, InjectFunctions, NonEmptyList}, Free.Return
 
 sealed trait ListAlgebra[A]
 
@@ -17,7 +13,7 @@ final case class Brpoplpush[A](source: String, destination: String, timeout: Sec
 
 final case class Lindex[A](key: String, index: Long, h: Option[String] => A) extends ListAlgebra[A]
 
-final case class Linsert[A](key: String, position: Position, pivot: String, value: String, h: Option[Long] => A) extends ListAlgebra[A]
+final case class Linsert[A](key: String, position: ListTypes#Position, pivot: String, value: String, h: Option[Long] => A) extends ListAlgebra[A]
 
 final case class Llen[A](key: String, h: Long => A) extends ListAlgebra[A]
 
@@ -43,13 +39,7 @@ final case class Rpush[A](key: String, values: NonEmptyList[String], h: Long => 
 
 final case class Rpushx[A](key: String, value: String, h: Long => A) extends ListAlgebra[A]
 
-sealed trait ListTypes {
-  sealed trait Position
-  case object Before extends Position
-  case object After extends Position
-}
-
-sealed trait ListInstances {
+trait ListInstances {
   implicit val listAlgebraFunctor: Functor[ListAlgebra] =
     new Functor[ListAlgebra] {
       def map[A, B](a: ListAlgebra[A])(f: A => B): ListAlgebra[B] =
@@ -75,7 +65,7 @@ sealed trait ListInstances {
     }
 }
 
-sealed trait ListFunctions {
+trait ListFunctions extends InjectFunctions {
   def blpop[F[_]: Functor](keys: NonEmptyList[String], timeout: Seconds)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[(String, String)]] =
     inject[F, ListAlgebra, Option[(String, String)]](Blpop(keys, timeout, Return(_)))
 
@@ -88,7 +78,7 @@ sealed trait ListFunctions {
   def lindex[F[_]: Functor](key: String, index: Long)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[String]] =
     inject[F, ListAlgebra, Option[String]](Lindex(key, index, Return(_)))
 
-  def linsert[F[_]: Functor](key: String, position: Position, pivot: String, value: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[Long]] =
+  def linsert[F[_]: Functor](key: String, position: ListTypes#Position, pivot: String, value: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[Long]] =
     inject[F, ListAlgebra, Option[Long]](Linsert(key, position, pivot, value, Return(_)))
 
   def llen[F[_]: Functor](key: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Long] =
@@ -128,4 +118,8 @@ sealed trait ListFunctions {
     inject[F, ListAlgebra, Long](Rpushx(key, value, Return(_)))
 }
 
-object ListAlgebra extends ListTypes with ListInstances with ListFunctions
+trait ListTypes {
+  sealed trait Position
+  case object Before extends Position
+  case object After extends Position
+}

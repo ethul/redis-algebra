@@ -1,11 +1,7 @@
 package redis
 package algebra
 
-import scalaz.{\/, Free, Functor}, Free.Return
-
-import typeclass.Inject, Inject._
-
-import ConnectionAlgebra._
+import scalaz.{Free, Functor, Inject, InjectFunctions}, Free.Return
 
 sealed trait ConnectionAlgebra[A]
 
@@ -19,7 +15,7 @@ final case class Quit[A](a: A) extends ConnectionAlgebra[A]
 
 final case class Select[A](index: Short, a: A) extends ConnectionAlgebra[A]
 
-sealed trait ConnectionInstances {
+trait ConnectionInstances {
   implicit val connectionAlgebraFunctor: Functor[ConnectionAlgebra] =
     new Functor[ConnectionAlgebra] {
       def map[A, B](a: ConnectionAlgebra[A])(f: A => B): ConnectionAlgebra[B] =
@@ -33,7 +29,7 @@ sealed trait ConnectionInstances {
     }
 }
 
-sealed trait ConnectionFunctions {
+trait ConnectionFunctions extends InjectFunctions {
   def auth[F[_]: Functor](password: String)(implicit I: Inject[ConnectionAlgebra, F]): Free[F, Unit] =
     inject[F, ConnectionAlgebra, Unit](Auth(password, Return(())))
 
@@ -49,5 +45,3 @@ sealed trait ConnectionFunctions {
   def select[F[_]: Functor](index: Short)(implicit I: Inject[ConnectionAlgebra, F]): Free[F, Unit] =
     inject[F, ConnectionAlgebra, Unit](Select(index, Return(())))
 }
-
-object ConnectionAlgebra extends ConnectionInstances with ConnectionFunctions

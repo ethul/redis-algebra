@@ -1,11 +1,7 @@
 package redis
 package algebra
 
-import scalaz.{Free, Functor, NonEmptyList}, Free.Return
-
-import typeclass.Inject, Inject._
-
-import KeyAlgebra._, ZSetAlgebra.Limit
+import scalaz.{Free, Functor, Inject, InjectFunctions, NonEmptyList}, Free.Return
 
 sealed trait KeyAlgebra[A]
 
@@ -25,7 +21,7 @@ final case class Migrate[A](host: String, port: Int, key: String, timeout: Milli
 
 final case class Move[A](key: String, db: Short, h: Boolean => A) extends KeyAlgebra[A]
 
-final case class Object[A](subcommand: ObjectSubcommand, h: ObjectResult => A) extends KeyAlgebra[A]
+final case class Object[A](subcommand: KeyTypes#ObjectSubcommand, h: KeyTypes#ObjectResult => A) extends KeyAlgebra[A]
 
 final case class Persist[A](key: String, h: Boolean => A) extends KeyAlgebra[A]
 
@@ -43,40 +39,13 @@ final case class Renamenx[A](key: String, name: String, h: Boolean => A) extends
 
 final case class Restore[A](key: String, ttl: Option[Milliseconds], value: String, a: A) extends KeyAlgebra[A]
 
-final case class Sort[A](key: String, by: Option[By], limit: Option[Limit], get: Seq[Glob], order: Order, alpha: Boolean, store: Option[String], h: Seq[String] => A) extends KeyAlgebra[A]
+final case class Sort[A](key: String, by: Option[KeyTypes#By], limit: Option[KeyTypes#Limit], get: Seq[Glob], order: KeyTypes#Order, alpha: Boolean, store: Option[String], h: Seq[String] => A) extends KeyAlgebra[A]
 
 final case class Ttl[A](key: String, h: Option[Seconds] => A) extends KeyAlgebra[A]
 
-final case class Type[A](key: String, h: RedisType => A) extends KeyAlgebra[A]
+final case class Type[A](key: String, h: KeyTypes#RedisType => A) extends KeyAlgebra[A]
 
-sealed trait KeyTypes {
-  sealed trait RedisType
-  case object RedisString extends RedisType { override def toString = "string" }
-  case object RedisList extends RedisType { override def toString = "list" }
-  case object RedisSet extends RedisType { override def toString = "set" }
-  case object RedisZset extends RedisType { override def toString = "zset" }
-  case object RedisHash extends RedisType { override def toString = "hash" }
-
-  sealed trait ObjectSubcommand
-  case class RefcountSubcommand(key: String) extends ObjectSubcommand
-  case class EncodingSubcommand(key: String) extends ObjectSubcommand
-  case class IdletimeSubcommand(key: String) extends ObjectSubcommand
-
-  sealed trait ObjectResult
-  case class RefcountResult(value: Long) extends ObjectResult
-  case class EncodingResult(value: String) extends ObjectResult
-  case class IdletimeResult(value: Long) extends ObjectResult
-
-  sealed trait By
-  case object Nosort extends By
-  case class Pattern(pattern: Glob) extends By
-
-  sealed trait Order
-  case object Asc extends Order
-  case object Desc extends Order
-}
-
-sealed trait KeyInstances {
+trait KeyInstances {
   implicit val keyAlgebraFunctor: Functor[KeyAlgebra] =
     new Functor[KeyAlgebra] {
       def map[A, B](a: KeyAlgebra[A])(f: A => B): KeyAlgebra[B] =
@@ -105,7 +74,7 @@ sealed trait KeyInstances {
     }
 }
 
-sealed trait KeyFunctions {
+trait KeyFunctions extends InjectFunctions {
   def del[F[_]: Functor](keys: NonEmptyList[String])(implicit I: Inject[KeyAlgebra, F]): Free[F, Long] =
     inject[F, KeyAlgebra, Long](Del(keys, Return(_)))
 
@@ -137,8 +106,8 @@ sealed trait KeyFunctions {
   def move[F[_]: Functor](key: String, db: Short)(implicit I: Inject[KeyAlgebra, F]): Free[F, Boolean] =
     inject[F, KeyAlgebra, Boolean](Move(key, db, Return(_)))
 
-  def `object`[F[_]: Functor](subcommand: ObjectSubcommand)(implicit I: Inject[KeyAlgebra, F]): Free[F, ObjectResult] =
-    inject[F, KeyAlgebra, ObjectResult](Object(subcommand, Return(_)))
+  def `object`[F[_]: Functor](subcommand: KeyTypes#ObjectSubcommand)(implicit I: Inject[KeyAlgebra, F]): Free[F, KeyTypes#ObjectResult] =
+    inject[F, KeyAlgebra, KeyTypes#ObjectResult](Object(subcommand, Return(_)))
 
   def persist[F[_]: Functor](key: String)(implicit I: Inject[KeyAlgebra, F]): Free[F, Boolean] =
     inject[F, KeyAlgebra, Boolean](Persist(key, Return(_)))
@@ -166,10 +135,10 @@ sealed trait KeyFunctions {
 
   def sort[F[_]: Functor](
     key: String,
-    by: Option[By] = None,
-    limit: Option[Limit] = None,
+    by: Option[KeyTypes#By] = None,
+    limit: Option[KeyTypes#Limit] = None,
     get: Seq[Glob] = Nil,
-    order: Order = Asc,
+    order: KeyTypes#Order = all.Asc,
     alpha: Boolean = false,
     store: Option[String] = None)(implicit I: Inject[KeyAlgebra, F]): Free[F, Seq[String]] =
     inject[F, KeyAlgebra, Seq[String]](Sort(key, by, limit, get, order, alpha, store, Return(_)))
@@ -177,8 +146,35 @@ sealed trait KeyFunctions {
   def ttl[F[_]: Functor](key: String)(implicit I: Inject[KeyAlgebra, F]): Free[F, Option[Seconds]] =
     inject[F, KeyAlgebra, Option[Seconds]](Ttl(key, Return(_)))
 
-  def `type`[F[_]: Functor](key: String)(implicit I: Inject[KeyAlgebra, F]): Free[F, RedisType] =
-    inject[F, KeyAlgebra, RedisType](Type(key, Return(_)))
+  def `type`[F[_]: Functor](key: String)(implicit I: Inject[KeyAlgebra, F]): Free[F, KeyTypes#RedisType] =
+    inject[F, KeyAlgebra, KeyTypes#RedisType](Type(key, Return(_)))
 }
 
-object KeyAlgebra extends KeyTypes with KeyInstances with KeyFunctions
+trait KeyTypes {
+  sealed trait RedisType
+  case object RedisString extends RedisType { override def toString = "string" }
+  case object RedisList extends RedisType { override def toString = "list" }
+  case object RedisSet extends RedisType { override def toString = "set" }
+  case object RedisZset extends RedisType { override def toString = "zset" }
+  case object RedisHash extends RedisType { override def toString = "hash" }
+
+  sealed trait ObjectSubcommand
+  case class RefcountSubcommand(key: String) extends ObjectSubcommand
+  case class EncodingSubcommand(key: String) extends ObjectSubcommand
+  case class IdletimeSubcommand(key: String) extends ObjectSubcommand
+
+  sealed trait ObjectResult
+  case class RefcountResult(value: Long) extends ObjectResult
+  case class EncodingResult(value: String) extends ObjectResult
+  case class IdletimeResult(value: Long) extends ObjectResult
+
+  sealed trait By
+  case object Nosort extends By
+  case class Pattern(pattern: Glob) extends By
+
+  sealed trait Order
+  case object Asc extends Order
+  case object Desc extends Order
+
+  case class Limit(offset: Long, count: Long)
+}

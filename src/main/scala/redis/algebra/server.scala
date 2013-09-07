@@ -1,11 +1,7 @@
 package redis
 package algebra
 
-import scalaz.{\/, Free, Functor}, Free.Return
-
-import typeclass.Inject, Inject._
-
-import ServerAlgebra._
+import scalaz.{Free, Functor, Inject, InjectFunctions}, Free.Return
 
 sealed trait ServerAlgebra[A]
 
@@ -49,31 +45,15 @@ final case class Save[A](a: A) extends ServerAlgebra[A]
 
 final case class Shutdown[A](save: Option[Boolean], a: A) extends ServerAlgebra[A]
 
-final case class Slaveof[A](master: Master, a: A) extends ServerAlgebra[A]
+final case class Slaveof[A](master: ServerTypes#Master, a: A) extends ServerAlgebra[A]
 
-final case class Slowlog[A](subcommand: SlowlogSubcommand, h: SlowlogResult => A) extends ServerAlgebra[A]
+final case class Slowlog[A](subcommand: ServerTypes#SlowlogSubcommand, h: ServerTypes#SlowlogResult => A) extends ServerAlgebra[A]
 
 final case class Sync[A](a: A) extends ServerAlgebra[A]
 
 final case class Time[A](h: ((Seconds, Microseconds)) => A) extends ServerAlgebra[A]
 
-sealed trait ServerTypes {
-  sealed trait Master
-  case class Host(name: String, port: Int) extends Master
-  case object Noone extends Master
-
-  sealed trait SlowlogSubcommand
-  case class GetSubcommand(limit: Option[Int] = None) extends SlowlogSubcommand
-  case object LenSubcommand extends SlowlogSubcommand
-  case object ResetSubcommand extends SlowlogSubcommand
-
-  sealed trait SlowlogResult
-  case class GetResult(value: Seq[String]) extends SlowlogResult
-  case class LenResult(value: Int) extends SlowlogResult
-  case object ResetResult extends SlowlogResult
-}
-
-sealed trait ServerInstances {
+trait ServerInstances {
   implicit val serverAlgebraFunctor: Functor[ServerAlgebra] =
     new Functor[ServerAlgebra] {
       def map[A, B](a: ServerAlgebra[A])(f: A => B): ServerAlgebra[B] =
@@ -106,7 +86,7 @@ sealed trait ServerInstances {
     }
 }
 
-sealed trait ServerFunctions {
+trait ServerFunctions extends InjectFunctions {
   def bgrewriteaof[F[_]: Functor](implicit I: Inject[ServerAlgebra, F]): Free[F, Unit] =
     inject[F, ServerAlgebra, Unit](Bgrewriteaof(Return(())))
 
@@ -167,11 +147,11 @@ sealed trait ServerFunctions {
   def shutdown[F[_]: Functor](save: Option[Boolean] = None)(implicit I: Inject[ServerAlgebra, F]): Free[F, Unit] =
     inject[F, ServerAlgebra, Unit](Shutdown(save, Return(())))
 
-  def slaveof[F[_]: Functor](master: Master)(implicit I: Inject[ServerAlgebra, F]): Free[F, Unit] =
+  def slaveof[F[_]: Functor](master: ServerTypes#Master)(implicit I: Inject[ServerAlgebra, F]): Free[F, Unit] =
     inject[F, ServerAlgebra, Unit](Slaveof(master, Return(())))
 
-  def slowlog[F[_]: Functor](subcommand: SlowlogSubcommand)(implicit I: Inject[ServerAlgebra, F]): Free[F, SlowlogResult] =
-    inject[F, ServerAlgebra, SlowlogResult](Slowlog(subcommand, Return(_)))
+  def slowlog[F[_]: Functor](subcommand: ServerTypes#SlowlogSubcommand)(implicit I: Inject[ServerAlgebra, F]): Free[F, ServerTypes#SlowlogResult] =
+    inject[F, ServerAlgebra, ServerTypes#SlowlogResult](Slowlog(subcommand, Return(_)))
 
   def sync[F[_]: Functor](implicit I: Inject[ServerAlgebra, F]): Free[F, Unit] =
     inject[F, ServerAlgebra, Unit](Sync(Return(())))
@@ -180,4 +160,18 @@ sealed trait ServerFunctions {
     inject[F, ServerAlgebra, (Seconds, Microseconds)](Time(Return(_)))
 }
 
-object ServerAlgebra extends ServerTypes with ServerInstances with ServerFunctions
+trait ServerTypes {
+  sealed trait Master
+  case class Host(name: String, port: Int) extends Master
+  case object Noone extends Master
+
+  sealed trait SlowlogSubcommand
+  case class GetSubcommand(limit: Option[Int] = None) extends SlowlogSubcommand
+  case object LenSubcommand extends SlowlogSubcommand
+  case object ResetSubcommand extends SlowlogSubcommand
+
+  sealed trait SlowlogResult
+  case class GetResult(value: Seq[String]) extends SlowlogResult
+  case class LenResult(value: Int) extends SlowlogResult
+  case object ResetResult extends SlowlogResult
+}

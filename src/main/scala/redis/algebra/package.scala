@@ -34,4 +34,30 @@ package object algebra {
   type R[A] = RedisAlgebra[A]
 
   type F[A] = RedisAlgebraFree[A]
+
+  object all
+    extends ConnectionInstances
+    with ConnectionFunctions
+    with HashInstances
+    with HashFunctions
+    with KeyInstances
+    with KeyFunctions
+    with KeyTypes
+    with ListInstances
+    with ListFunctions
+    with ListTypes
+    with ScriptInstances
+    with ScriptFunctions
+    with ScriptTypes
+    with ServerInstances
+    with ServerFunctions
+    with ServerTypes
+    with SetInstances
+    with SetFunctions
+    with StringInstances
+    with StringFunctions
+    with StringTypes
+    with ZSetInstances
+    with ZSetFunctions
+    with ZSetTypes
 }

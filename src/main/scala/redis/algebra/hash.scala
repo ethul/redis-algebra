@@ -1,11 +1,7 @@
 package redis
 package algebra
 
-import scalaz.{Free, Functor, NonEmptyList}, Free.Return
-
-import typeclass.Inject, Inject._
-
-import HashAlgebra._
+import scalaz.{Free, Functor, Inject, InjectFunctions, NonEmptyList}, Free.Return
 
 sealed trait HashAlgebra[A]
 
@@ -35,7 +31,7 @@ final case class Hsetnx[A](key: String, field: String, value: String, h: Boolean
 
 final case class Hvals[A](key: String, h: Seq[String] => A) extends HashAlgebra[A]
 
-sealed trait HashInstances {
+trait HashInstances {
   implicit val hashAlgebraFunctor: Functor[HashAlgebra] =
     new Functor[HashAlgebra] {
       def map[A, B](a: HashAlgebra[A])(f: A => B): HashAlgebra[B] =
@@ -57,7 +53,7 @@ sealed trait HashInstances {
     }
 }
 
-sealed trait HashFunctions {
+trait HashFunctions extends InjectFunctions {
   def hdel[F[_]: Functor](key: String, fields: NonEmptyList[String])(implicit I: Inject[HashAlgebra, F]): Free[F, Long] =
     inject[F, HashAlgebra, Long](Hdel(key, fields, Return(_)))
 
@@ -97,5 +93,3 @@ sealed trait HashFunctions {
   def hvals[F[_]: Functor](key: String)(implicit I: Inject[HashAlgebra, F]): Free[F, Seq[String]] =
     inject[F, HashAlgebra, Seq[String]](Hvals(key, Return(_)))
 }
-
-object HashAlgebra extends HashInstances with HashFunctions

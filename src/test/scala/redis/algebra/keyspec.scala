@@ -5,7 +5,7 @@ import org.specs2._
 
 import scalaz.NonEmptyList._
 
-import KeyAlgebra._
+import all._
 
 class KeyAlgebraSpec extends Specification { def is = s2"""
   This is the specification for the KeyAlgebra.

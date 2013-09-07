@@ -1,11 +1,7 @@
 package redis
 package algebra
 
-import scalaz.{\/, Free, Functor, NonEmptyList}, Free.Return
-
-import typeclass.Inject, Inject._
-
-import StringAlgebra._
+import scalaz.{\/, Free, Functor, Inject, InjectFunctions, NonEmptyList}, Free.Return
 
 sealed trait StringAlgebra[A]
 
@@ -13,7 +9,7 @@ final case class Append[A](key: String, value: String, h: Long => A) extends Str
 
 final case class Bitcount[A](key: String, start: Option[Int], end: Option[Int], h: Long => A) extends StringAlgebra[A]
 
-final case class Bitop[A](operation: BitOperation, h: Long => A) extends StringAlgebra[A]
+final case class Bitop[A](operation: StringTypes#BitOperation, h: Long => A) extends StringAlgebra[A]
 
 final case class Decr[A](key: String, h: Long => A) extends StringAlgebra[A]
 
@@ -41,7 +37,7 @@ final case class Msetnx[A](pairs: NonEmptyList[(String, String)], h: Boolean => 
 
 final case class Psetex[A](key: String, in: Milliseconds, value: String, a: A) extends StringAlgebra[A]
 
-final case class Set[A](key: String, value: String, in: Option[Seconds \/ Milliseconds], option: Option[SetOption], h: Boolean => A) extends StringAlgebra[A]
+final case class Set[A](key: String, value: String, in: Option[Seconds \/ Milliseconds], option: Option[StringTypes#SetOption], h: Boolean => A) extends StringAlgebra[A]
 
 final case class Setbit[A](key: String, offset: Int, value: String, h: Long => A) extends StringAlgebra[A]
 
@@ -53,19 +49,7 @@ final case class Setrange[A](key: String, offset: Int, value: String, h: Long =>
 
 final case class Strlen[A](key: String, h: Long => A) extends StringAlgebra[A]
 
-sealed trait StringTypes {
-  sealed trait BitOperation
-  case class And(dest: String, keys: NonEmptyList[String]) extends BitOperation
-  case class Or(dest: String, keys: NonEmptyList[String]) extends BitOperation
-  case class Xor(dest: String, keys: NonEmptyList[String]) extends BitOperation
-  case class Not(dest: String, key: String) extends BitOperation
-
-  sealed trait SetOption
-  case object Nx extends SetOption
-  case object Xx extends SetOption
-}
-
-sealed trait StringInstances {
+trait StringInstances {
   implicit val stringAlgebraFunctor: Functor[StringAlgebra] =
     new Functor[StringAlgebra] {
       def map[A, B](a: StringAlgebra[A])(f: A => B): StringAlgebra[B] =
@@ -96,14 +80,14 @@ sealed trait StringInstances {
     }
 }
 
-sealed trait StringFunctions {
+trait StringFunctions extends InjectFunctions {
   def append[F[_]: Functor](key: String, value: String)(implicit I: Inject[StringAlgebra, F]): Free[F, Long] =
     inject[F, StringAlgebra, Long](Append(key, value, Return(_)))
 
   def bitcount[F[_]: Functor](key: String, start: Option[Int] = None, end: Option[Int] = None)(implicit I: Inject[StringAlgebra, F]): Free[F, Long] =
     inject[F, StringAlgebra, Long](Bitcount(key, start, end, Return(_)))
 
-  def bitop[F[_]: Functor](operation: BitOperation)(implicit I: Inject[StringAlgebra, F]): Free[F, Long] =
+  def bitop[F[_]: Functor](operation: StringTypes#BitOperation)(implicit I: Inject[StringAlgebra, F]): Free[F, Long] =
     inject[F, StringAlgebra, Long](Bitop(operation, Return(_)))
 
   def decr[F[_]: Functor](key: String)(implicit I: Inject[StringAlgebra, F]): Free[F, Long] =
@@ -146,7 +130,7 @@ sealed trait StringFunctions {
     inject[F, StringAlgebra, Unit](Psetex(key, in, value, Return(())))
 
   def set[F[_]: Functor](key: String, value: String,
-    in: Option[Seconds \/ Milliseconds] = None, option: Option[SetOption] = None)(implicit I: Inject[StringAlgebra, F]): Free[F, Boolean] =
+    in: Option[Seconds \/ Milliseconds] = None, option: Option[StringTypes#SetOption] = None)(implicit I: Inject[StringAlgebra, F]): Free[F, Boolean] =
     inject[F, StringAlgebra, Boolean](Set(key, value, in, option, Return(_)))
 
   def setbit[F[_]: Functor](key: String, offset: Int, value: String)(implicit I: Inject[StringAlgebra, F]): Free[F, Long] =
@@ -165,4 +149,14 @@ sealed trait StringFunctions {
     inject[F, StringAlgebra, Long](Strlen(key, Return(_)))
 }
 
-object StringAlgebra extends StringTypes with StringInstances with StringFunctions
+trait StringTypes {
+  sealed trait BitOperation
+  case class And(dest: String, keys: NonEmptyList[String]) extends BitOperation
+  case class Or(dest: String, keys: NonEmptyList[String]) extends BitOperation
+  case class Xor(dest: String, keys: NonEmptyList[String]) extends BitOperation
+  case class Not(dest: String, key: String) extends BitOperation
+
+  sealed trait SetOption
+  case object Nx extends SetOption
+  case object Xx extends SetOption
+}

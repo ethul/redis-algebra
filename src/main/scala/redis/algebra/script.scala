@@ -1,17 +1,13 @@
 package redis
 package algebra
 
-import scalaz.{\/, Free, Functor, NonEmptyList}, Free.Return
-
-import typeclass.Inject, Inject._
-
-import ScriptAlgebra._
+import scalaz.{\/, Free, Functor, Inject, InjectFunctions, NonEmptyList}, Free.Return
 
 sealed trait ScriptAlgebra[A]
 
-final case class Eval[A](script: String, keys: Seq[String], args: Seq[String], h: LuaError \/ LuaValue => A) extends ScriptAlgebra[A]
+final case class Eval[A](script: String, keys: Seq[String], args: Seq[String], h: ScriptTypes#LuaError \/ ScriptTypes#LuaValue => A) extends ScriptAlgebra[A]
 
-final case class Evalsha[A](sha1: String, keys: Seq[String], args: Seq[String], h: LuaError \/ LuaValue => A) extends ScriptAlgebra[A]
+final case class Evalsha[A](sha1: String, keys: Seq[String], args: Seq[String], h: ScriptTypes#LuaError \/ ScriptTypes#LuaValue => A) extends ScriptAlgebra[A]
 
 final case class Scriptexists[A](scripts: NonEmptyList[String], h: NonEmptyList[Boolean] => A) extends ScriptAlgebra[A]
 
@@ -21,18 +17,7 @@ final case class Scriptkill[A](a: A) extends ScriptAlgebra[A]
 
 final case class Scriptload[A](script: String, h: String => A) extends ScriptAlgebra[A]
 
-sealed trait ScriptTypes {
-  case class LuaError(value: String)
-
-  sealed trait LuaValue
-  case class LuaNumber(value: Long) extends LuaValue
-  case class LuaString(value: String) extends LuaValue
-  case class LuaBoolean(value: Boolean) extends LuaValue
-  case class LuaTable(value: Map[LuaValue, LuaValue]) extends LuaValue
-  case object LuaUnit extends LuaValue
-}
-
-sealed trait ScriptInstances {
+trait ScriptInstances {
   implicit val scriptAlgebraFunctor: Functor[ScriptAlgebra] =
     new Functor[ScriptAlgebra] {
       def map[A, B](a: ScriptAlgebra[A])(f: A => B): ScriptAlgebra[B] =
@@ -47,18 +32,18 @@ sealed trait ScriptInstances {
     }
 }
 
-sealed trait ScriptFunctions {
+trait ScriptFunctions extends InjectFunctions {
   def eval[F[_]: Functor](
     script: String,
     keys: Seq[String] = Nil,
-    args: Seq[String] = Nil)(implicit I: Inject[ScriptAlgebra, F]): Free[F, LuaError \/ LuaValue] =
-    inject[F, ScriptAlgebra, LuaError \/ LuaValue](Eval(script, keys, args, Return(_)))
+    args: Seq[String] = Nil)(implicit I: Inject[ScriptAlgebra, F]): Free[F, ScriptTypes#LuaError \/ ScriptTypes#LuaValue] =
+    inject[F, ScriptAlgebra, ScriptTypes#LuaError \/ ScriptTypes#LuaValue](Eval(script, keys, args, Return(_)))
 
   def evalsha[F[_]: Functor](
     sha1: String,
     keys: Seq[String] = Nil,
-    args: Seq[String] = Nil)(implicit I: Inject[ScriptAlgebra, F]): Free[F, LuaError \/ LuaValue] =
-    inject[F, ScriptAlgebra, LuaError \/ LuaValue](Evalsha(sha1, keys, args, Return(_)))
+    args: Seq[String] = Nil)(implicit I: Inject[ScriptAlgebra, F]): Free[F, ScriptTypes#LuaError \/ ScriptTypes#LuaValue] =
+    inject[F, ScriptAlgebra, ScriptTypes#LuaError \/ ScriptTypes#LuaValue](Evalsha(sha1, keys, args, Return(_)))
 
   def scriptexists[F[_]: Functor](scripts: NonEmptyList[String])(implicit I: Inject[ScriptAlgebra, F]): Free[F, NonEmptyList[Boolean]] =
     inject[F, ScriptAlgebra, NonEmptyList[Boolean]](Scriptexists(scripts, Return(_)))
@@ -73,4 +58,13 @@ sealed trait ScriptFunctions {
     inject[F, ScriptAlgebra, String](Scriptload(script, Return(_)))
 }
 
-object ScriptAlgebra extends ScriptTypes with ScriptInstances with ScriptFunctions
+trait ScriptTypes {
+  case class LuaError(value: String)
+
+  sealed trait LuaValue
+  case class LuaNumber(value: Long) extends LuaValue
+  case class LuaString(value: String) extends LuaValue
+  case class LuaBoolean(value: Boolean) extends LuaValue
+  case class LuaTable(value: Map[LuaValue, LuaValue]) extends LuaValue
+  case object LuaUnit extends LuaValue
+}
