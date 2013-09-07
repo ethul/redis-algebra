@@ -21,13 +21,16 @@ final case class Scriptkill[A](a: A) extends ScriptAlgebra[A]
 
 final case class Scriptload[A](script: String, h: String => A) extends ScriptAlgebra[A]
 
-sealed trait LuaValue
-final case class LuaError(value: String)
-final case class LuaNumber(value: Long) extends LuaValue
-final case class LuaString(value: String) extends LuaValue
-final case class LuaBoolean(value: Boolean) extends LuaValue
-final case class LuaTable(value: Map[LuaValue, LuaValue]) extends LuaValue
-case object LuaUnit extends LuaValue
+sealed trait ScriptTypes {
+  case class LuaError(value: String)
+
+  sealed trait LuaValue
+  case class LuaNumber(value: Long) extends LuaValue
+  case class LuaString(value: String) extends LuaValue
+  case class LuaBoolean(value: Boolean) extends LuaValue
+  case class LuaTable(value: Map[LuaValue, LuaValue]) extends LuaValue
+  case object LuaUnit extends LuaValue
+}
 
 sealed trait ScriptInstances {
   implicit val scriptAlgebraFunctor: Functor[ScriptAlgebra] =
@@ -70,4 +73,4 @@ sealed trait ScriptFunctions {
     inject[F, ScriptAlgebra, String](Scriptload(script, Return(_)))
 }
 
-object ScriptAlgebra extends ScriptInstances with ScriptFunctions
+object ScriptAlgebra extends ScriptTypes with ScriptInstances with ScriptFunctions

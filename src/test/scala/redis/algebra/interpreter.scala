@@ -25,7 +25,7 @@ sealed trait InterpreterInstances {
         }
     }
 
-  implicit val keylAgebraInterpreter: Interpreter[KeyAlgebra] =
+  implicit val keyAgebraInterpreter: Interpreter[KeyAlgebra] =
     new Interpreter[KeyAlgebra] {
       def runAlgebra[A](algebra: KeyAlgebra[Mem => (A, Mem)], mem: Mem) =
         algebra match {
@@ -52,6 +52,14 @@ sealed trait InterpreterInstances {
   implicit val scriptAlgebraInterpreter: Interpreter[ScriptAlgebra] =
     new Interpreter[ScriptAlgebra] {
       def runAlgebra[A](algebra: ScriptAlgebra[Mem => (A, Mem)], mem: Mem) =
+        algebra match {
+          case _ => ???
+        }
+    }
+
+  implicit val serverAlgebraInterpreter: Interpreter[ServerAlgebra] =
+    new Interpreter[ServerAlgebra] {
+      def runAlgebra[A](algebra: ServerAlgebra[Mem => (A, Mem)], mem: Mem) =
         algebra match {
           case _ => ???
         }

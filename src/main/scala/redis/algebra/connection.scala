@@ -13,13 +13,11 @@ final case class Auth[A](password: String, a: A) extends ConnectionAlgebra[A]
 
 final case class Echo[A](message: String, h: String => A) extends ConnectionAlgebra[A]
 
-final case class Ping[A](h: Option[pong.type] => A) extends ConnectionAlgebra[A]
+final case class Ping[A](h: Boolean => A) extends ConnectionAlgebra[A]
 
 final case class Quit[A](a: A) extends ConnectionAlgebra[A]
 
 final case class Select[A](index: Short, a: A) extends ConnectionAlgebra[A]
-
-case object pong
 
 sealed trait ConnectionInstances {
   implicit val connectionAlgebraFunctor: Functor[ConnectionAlgebra] =
@@ -42,8 +40,8 @@ sealed trait ConnectionFunctions {
   def echo[F[_]: Functor](message: String)(implicit I: Inject[ConnectionAlgebra, F]): Free[F, String] =
     inject[F, ConnectionAlgebra, String](Echo(message, Return(_)))
 
-  def ping[F[_]: Functor](implicit I: Inject[ConnectionAlgebra, F]): Free[F, Option[pong.type]] =
-    inject[F, ConnectionAlgebra, Option[pong.type]](Ping(Return(_)))
+  def ping[F[_]: Functor](implicit I: Inject[ConnectionAlgebra, F]): Free[F, Boolean] =
+    inject[F, ConnectionAlgebra, Boolean](Ping(Return(_)))
 
   def quit[F[_]: Functor](implicit I: Inject[ConnectionAlgebra, F]): Free[F, Unit] =
     inject[F, ConnectionAlgebra, Unit](Quit(Return(())))

@@ -53,15 +53,17 @@ final case class Setrange[A](key: String, offset: Int, value: String, h: Long =>
 
 final case class Strlen[A](key: String, h: Long => A) extends StringAlgebra[A]
 
-sealed trait BitOperation
-final case class And(dest: String, keys: NonEmptyList[String]) extends BitOperation
-final case class Or(dest: String, keys: NonEmptyList[String]) extends BitOperation
-final case class Xor(dest: String, keys: NonEmptyList[String]) extends BitOperation
-final case class Not(dest: String, key: String) extends BitOperation
+sealed trait StringTypes {
+  sealed trait BitOperation
+  case class And(dest: String, keys: NonEmptyList[String]) extends BitOperation
+  case class Or(dest: String, keys: NonEmptyList[String]) extends BitOperation
+  case class Xor(dest: String, keys: NonEmptyList[String]) extends BitOperation
+  case class Not(dest: String, key: String) extends BitOperation
 
-sealed trait SetOption
-case object Nx extends SetOption
-case object Xx extends SetOption
+  sealed trait SetOption
+  case object Nx extends SetOption
+  case object Xx extends SetOption
+}
 
 sealed trait StringInstances {
   implicit val stringAlgebraFunctor: Functor[StringAlgebra] =
@@ -163,4 +165,4 @@ sealed trait StringFunctions {
     inject[F, StringAlgebra, Long](Strlen(key, Return(_)))
 }
 
-object StringAlgebra extends StringInstances with StringFunctions
+object StringAlgebra extends StringTypes with StringInstances with StringFunctions

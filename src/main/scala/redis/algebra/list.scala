@@ -43,9 +43,11 @@ final case class Rpush[A](key: String, values: NonEmptyList[String], h: Long => 
 
 final case class Rpushx[A](key: String, value: String, h: Long => A) extends ListAlgebra[A]
 
-sealed trait Position
-case object Before extends Position
-case object After extends Position
+sealed trait ListTypes {
+  sealed trait Position
+  case object Before extends Position
+  case object After extends Position
+}
 
 sealed trait ListInstances {
   implicit val listAlgebraFunctor: Functor[ListAlgebra] =
@@ -126,4 +128,4 @@ sealed trait ListFunctions {
     inject[F, ListAlgebra, Long](Rpushx(key, value, Return(_)))
 }
 
-object ListAlgebra extends ListInstances with ListFunctions
+object ListAlgebra extends ListTypes with ListInstances with ListFunctions

@@ -41,18 +41,20 @@ final case class Zscore[A](key: String, member: String, h: Option[Double] => A) 
 
 final case class Zunionstore[A](destination: String, keys: NonEmptyList[String], weights: Option[NonEmptyList[Double]], aggregate: Aggregate, h: Long => A) extends ZSetAlgebra[A]
 
-sealed trait Endpoint
-final case class Closed(value: Double) extends Endpoint
-final case class Open(value: Double) extends Endpoint
-case object -∞ extends Endpoint
-case object +∞ extends Endpoint
+sealed trait ZSetTypes {
+  sealed trait Endpoint
+  case class Closed(value: Double) extends Endpoint
+  case class Open(value: Double) extends Endpoint
+  case object -∞ extends Endpoint
+  case object +∞ extends Endpoint
 
-sealed trait Aggregate
-case object Sum extends Aggregate
-case object Min extends Aggregate
-case object Max extends Aggregate
+  sealed trait Aggregate
+  case object Sum extends Aggregate
+  case object Min extends Aggregate
+  case object Max extends Aggregate
 
-final case class Limit(offset: Long, count: Long)
+  case class Limit(offset: Long, count: Long)
+}
 
 sealed trait ZSetInstances {
   implicit val zsetAlgebraFunctor: Functor[ZSetAlgebra] =
@@ -155,4 +157,4 @@ sealed trait ZSetFunctions {
     inject[F, ZSetAlgebra, Double](Zunionstore(destination, keys, weights, aggregate, Return(_)))
 }
 
-object ZSetAlgebra extends ZSetInstances with ZSetFunctions
+object ZSetAlgebra extends ZSetTypes with ZSetInstances with ZSetFunctions
