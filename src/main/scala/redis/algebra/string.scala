@@ -9,7 +9,7 @@ final case class Append[A](key: String, value: String, h: Long => A) extends Str
 
 final case class Bitcount[A](key: String, start: Option[Int], end: Option[Int], h: Long => A) extends StringAlgebra[A]
 
-final case class Bitop[A](operation: StringTypes#BitOperation, h: Long => A) extends StringAlgebra[A]
+final case class Bitop[A](operation: BitOperation, h: Long => A) extends StringAlgebra[A]
 
 final case class Decr[A](key: String, h: Long => A) extends StringAlgebra[A]
 
@@ -31,17 +31,17 @@ final case class Incrbyfloat[A](key: String, increment: Float, h: Float => A) ex
 
 final case class Mget[A](keys: NonEmptyList[String], h: Seq[Option[String]] => A) extends StringAlgebra[A]
 
-final case class Mset[A](pairs: NonEmptyList[(String, String)], a: A) extends StringAlgebra[A]
+final case class Mset[A](pairs: NonEmptyList[(String, String)], h: Status => A) extends StringAlgebra[A]
 
 final case class Msetnx[A](pairs: NonEmptyList[(String, String)], h: Boolean => A) extends StringAlgebra[A]
 
-final case class Psetex[A](key: String, in: Milliseconds, value: String, a: A) extends StringAlgebra[A]
+final case class Psetex[A](key: String, in: Milliseconds, value: String, h: Status => A) extends StringAlgebra[A]
 
-final case class Set[A](key: String, value: String, in: Option[Seconds \/ Milliseconds], option: Option[StringTypes#SetOption], h: Boolean => A) extends StringAlgebra[A]
+final case class Set[A](key: String, value: String, in: Option[Seconds \/ Milliseconds], option: Option[SetOption], h: Boolean => A) extends StringAlgebra[A]
 
 final case class Setbit[A](key: String, offset: Int, value: String, h: Long => A) extends StringAlgebra[A]
 
-final case class Setex[A](key: String, in: Seconds, value: String, a: A) extends StringAlgebra[A]
+final case class Setex[A](key: String, in: Seconds, value: String, h: Status => A) extends StringAlgebra[A]
 
 final case class Setnx[A](key: String, value: String, h: Boolean => A) extends StringAlgebra[A]
 
@@ -67,12 +67,12 @@ trait StringInstances {
           case Incrby(k, i, h) => Incrby(k, i, x => f(h(x)))
           case Incrbyfloat(k, i, h) => Incrbyfloat(k, i, x => f(h(x)))
           case Mget(k, h) => Mget(k, x => f(h(x)))
-          case Mset(p, a) => Mset(p, f(a))
+          case Mset(p, h) => Mset(p, x => f(h(x)))
           case Msetnx(p, h) => Msetnx(p, x => f(h(x)))
-          case Psetex(k, i, v, a) => Psetex(k, i, v, f(a))
+          case Psetex(k, i, v, h) => Psetex(k, i, v, x => f(h(x)))
           case Set(k, v, i, o, h) => Set(k, v, i, o, x => f(h(x)))
           case Setbit(k, o, v, h) => Setbit(k, o, v, x => f(h(x)))
-          case Setex(k, i, v, a) => Setex(k, i, v, f(a))
+          case Setex(k, i, v, h) => Setex(k, i, v, x => f(h(x)))
           case Setnx(k, v, h) => Setnx(k, v, x => f(h(x)))
           case Setrange(k, o, v, h) => Setrange(k, o, v, x => f(h(x)))
           case Strlen(k, h) => Strlen(k, x => f(h(x)))
@@ -87,7 +87,7 @@ trait StringFunctions extends InjectFunctions {
   def bitcount[F[_]: Functor](key: String, start: Option[Int] = None, end: Option[Int] = None)(implicit I: Inject[StringAlgebra, F]): Free[F, Long] =
     inject[F, StringAlgebra, Long](Bitcount(key, start, end, Return(_)))
 
-  def bitop[F[_]: Functor](operation: StringTypes#BitOperation)(implicit I: Inject[StringAlgebra, F]): Free[F, Long] =
+  def bitop[F[_]: Functor](operation: BitOperation)(implicit I: Inject[StringAlgebra, F]): Free[F, Long] =
     inject[F, StringAlgebra, Long](Bitop(operation, Return(_)))
 
   def decr[F[_]: Functor](key: String)(implicit I: Inject[StringAlgebra, F]): Free[F, Long] =
@@ -120,24 +120,24 @@ trait StringFunctions extends InjectFunctions {
   def mget[F[_]: Functor](keys: NonEmptyList[String])(implicit I: Inject[StringAlgebra, F]): Free[F, Seq[Option[String]]] =
     inject[F, StringAlgebra, Seq[Option[String]]](Mget(keys, Return(_)))
 
-  def mset[F[_]: Functor](pairs: NonEmptyList[(String, String)])(implicit I: Inject[StringAlgebra, F]): Free[F, Unit] =
-    inject[F, StringAlgebra, Unit](Mset(pairs, Return(())))
+  def mset[F[_]: Functor](pairs: NonEmptyList[(String, String)])(implicit I: Inject[StringAlgebra, F]): Free[F, Status] =
+    inject[F, StringAlgebra, Status](Mset(pairs, Return(_)))
 
   def msetnx[F[_]: Functor](pairs: NonEmptyList[(String, String)])(implicit I: Inject[StringAlgebra, F]): Free[F, Boolean] =
     inject[F, StringAlgebra, Boolean](Msetnx(pairs, Return(_)))
 
-  def psetex[F[_]: Functor](key: String, in: Milliseconds, value: String)(implicit I: Inject[StringAlgebra, F]): Free[F, Unit] =
-    inject[F, StringAlgebra, Unit](Psetex(key, in, value, Return(())))
+  def psetex[F[_]: Functor](key: String, in: Milliseconds, value: String)(implicit I: Inject[StringAlgebra, F]): Free[F, Status] =
+    inject[F, StringAlgebra, Status](Psetex(key, in, value, Return(_)))
 
   def set[F[_]: Functor](key: String, value: String,
-    in: Option[Seconds \/ Milliseconds] = None, option: Option[StringTypes#SetOption] = None)(implicit I: Inject[StringAlgebra, F]): Free[F, Boolean] =
+    in: Option[Seconds \/ Milliseconds] = None, option: Option[SetOption] = None)(implicit I: Inject[StringAlgebra, F]): Free[F, Boolean] =
     inject[F, StringAlgebra, Boolean](Set(key, value, in, option, Return(_)))
 
   def setbit[F[_]: Functor](key: String, offset: Int, value: String)(implicit I: Inject[StringAlgebra, F]): Free[F, Long] =
     inject[F, StringAlgebra, Long](Setbit(key, offset, value, Return(_)))
 
-  def setex[F[_]: Functor](key: String, in: Seconds, value: String)(implicit I: Inject[StringAlgebra, F]): Free[F, Unit] =
-    inject[F, StringAlgebra, Unit](Setex(key, in, value, Return(())))
+  def setex[F[_]: Functor](key: String, in: Seconds, value: String)(implicit I: Inject[StringAlgebra, F]): Free[F, Status] =
+    inject[F, StringAlgebra, Status](Setex(key, in, value, Return(_)))
 
   def setnx[F[_]: Functor](key: String, value: String)(implicit I: Inject[StringAlgebra, F]): Free[F, Boolean] =
     inject[F, StringAlgebra, Boolean](Setnx(key, value, Return(_)))
@@ -149,14 +149,12 @@ trait StringFunctions extends InjectFunctions {
     inject[F, StringAlgebra, Long](Strlen(key, Return(_)))
 }
 
-trait StringTypes {
-  sealed trait BitOperation
-  case class And(dest: String, keys: NonEmptyList[String]) extends BitOperation
-  case class Or(dest: String, keys: NonEmptyList[String]) extends BitOperation
-  case class Xor(dest: String, keys: NonEmptyList[String]) extends BitOperation
-  case class Not(dest: String, key: String) extends BitOperation
+sealed trait BitOperation
+case class And(dest: String, keys: NonEmptyList[String]) extends BitOperation
+case class Or(dest: String, keys: NonEmptyList[String]) extends BitOperation
+case class Xor(dest: String, keys: NonEmptyList[String]) extends BitOperation
+case class Not(dest: String, key: String) extends BitOperation
 
-  sealed trait SetOption
-  case object Nx extends SetOption
-  case object Xx extends SetOption
-}
+sealed trait SetOption
+case object Nx extends SetOption
+case object Xx extends SetOption

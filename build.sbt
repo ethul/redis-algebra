@@ -1,5 +1,7 @@
 name := "redis-algebra"
 
+organization := "com.github.ethul"
+
 version := "0.0.1-SNAPSHOT"
 
 scalaVersion := "2.10.2"
@@ -17,6 +19,8 @@ resolvers += "Github ethul snapshots" at "https://github.com/ethul/ivy-repositor
 resolvers += "Github ethul releases" at "https://github.com/ethul/ivy-repository/raw/master/releases/"
 
 scalacOptions += "-feature"
+
+scalacOptions += "-deprecation"
 
 scalacOptions += "-language:higherKinds"
 

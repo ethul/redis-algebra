@@ -9,15 +9,15 @@ final case class Zadd[A](key: String, pairs: NonEmptyList[(Double, String)], h: 
 
 final case class Zcard[A](key: String, h: Long => A) extends ZSetAlgebra[A]
 
-final case class Zcount[A](key: String, min: ZSetTypes#Endpoint, max: ZSetTypes#Endpoint, h: Long => A) extends ZSetAlgebra[A]
+final case class Zcount[A](key: String, min: Endpoint, max: Endpoint, h: Long => A) extends ZSetAlgebra[A]
 
 final case class Zincrby[A](key: String, increment: Double, member: String, h: Double => A) extends ZSetAlgebra[A]
 
-final case class Zinterstore[A](destination: String, keys: NonEmptyList[String], weights: Option[NonEmptyList[Double]], aggregate: ZSetTypes#Aggregate, h: Long => A) extends ZSetAlgebra[A]
+final case class Zinterstore[A](destination: String, keys: NonEmptyList[String], weights: Option[NonEmptyList[Double]], aggregate: Aggregate, h: Long => A) extends ZSetAlgebra[A]
 
 final case class Zrange[A](key: String, start: Long, stop: Long, withScores: Boolean, h: Seq[(String, Option[Double])] => A) extends ZSetAlgebra[A]
 
-final case class Zrangebyscore[A](key: String, min: ZSetTypes#Endpoint, max: ZSetTypes#Endpoint, withScores: Boolean, limit: Option[KeyTypes#Limit], h: Seq[(String, Option[Double])] => A) extends ZSetAlgebra[A]
+final case class Zrangebyscore[A](key: String, min: Endpoint, max: Endpoint, withScores: Boolean, limit: Option[Limit], h: Seq[(String, Option[Double])] => A) extends ZSetAlgebra[A]
 
 final case class Zrank[A](key: String, member: String, h: Option[Long] => A) extends ZSetAlgebra[A]
 
@@ -25,17 +25,17 @@ final case class Zrem[A](key: String, members: NonEmptyList[String], h: Long => 
 
 final case class Zremrangebyrank[A](key: String, start: Long, stop: Long, h: Long => A) extends ZSetAlgebra[A]
 
-final case class Zremrangebyscore[A](key: String, start: ZSetTypes#Endpoint, stop: ZSetTypes#Endpoint, h: Long => A) extends ZSetAlgebra[A]
+final case class Zremrangebyscore[A](key: String, start: Endpoint, stop: Endpoint, h: Long => A) extends ZSetAlgebra[A]
 
 final case class Zrevrange[A](key: String, start: Long, stop: Long, withScores: Boolean, h: Seq[(String, Option[Double])] => A) extends ZSetAlgebra[A]
 
-final case class Zrevrangebyscore[A](key: String, min: ZSetTypes#Endpoint, max: ZSetTypes#Endpoint, withScores: Boolean, limit: Option[KeyTypes#Limit], h: Seq[(String, Option[Double])] => A) extends ZSetAlgebra[A]
+final case class Zrevrangebyscore[A](key: String, min: Endpoint, max: Endpoint, withScores: Boolean, limit: Option[Limit], h: Seq[(String, Option[Double])] => A) extends ZSetAlgebra[A]
 
 final case class Zrevrank[A](key: String, member: String, h: Option[Long] => A) extends ZSetAlgebra[A]
 
 final case class Zscore[A](key: String, member: String, h: Option[Double] => A) extends ZSetAlgebra[A]
 
-final case class Zunionstore[A](destination: String, keys: NonEmptyList[String], weights: Option[NonEmptyList[Double]], aggregate: ZSetTypes#Aggregate, h: Long => A) extends ZSetAlgebra[A]
+final case class Zunionstore[A](destination: String, keys: NonEmptyList[String], weights: Option[NonEmptyList[Double]], aggregate: Aggregate, h: Long => A) extends ZSetAlgebra[A]
 
 trait ZSetInstances {
   implicit val zsetAlgebraFunctor: Functor[ZSetAlgebra] =
@@ -69,7 +69,7 @@ trait ZSetFunctions extends InjectFunctions {
   def zcard[F[_]: Functor](key: String)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Long] =
     inject[F, ZSetAlgebra, Long](Zcard(key, Return(_)))
 
-  def zcount[F[_]: Functor](key: String, min: ZSetTypes#Endpoint, max: ZSetTypes#Endpoint)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Long] =
+  def zcount[F[_]: Functor](key: String, min: Endpoint, max: Endpoint)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Long] =
     inject[F, ZSetAlgebra, Long](Zcount(key, min, max, Return(_)))
 
   def zincrby[F[_]: Functor](key: String, increment: Double, member: String)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Double] =
@@ -79,7 +79,7 @@ trait ZSetFunctions extends InjectFunctions {
     destination: String,
     keys: NonEmptyList[String],
     weights: Option[NonEmptyList[Double]] = None,
-    aggregate: ZSetTypes#Aggregate = all.Sum)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Double] =
+    aggregate: Aggregate = Sum)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Double] =
     inject[F, ZSetAlgebra, Double](Zinterstore(destination, keys, weights, aggregate, Return(_)))
 
   def zrange[F[_]: Functor](
@@ -91,10 +91,10 @@ trait ZSetFunctions extends InjectFunctions {
 
   def zrangebyscore[F[_]: Functor](
     key: String,
-    min: ZSetTypes#Endpoint,
-    max: ZSetTypes#Endpoint,
+    min: Endpoint,
+    max: Endpoint,
     withScores: Boolean = false,
-    limit: Option[KeyTypes#Limit] = None)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Seq[(String, Option[Double])]] =
+    limit: Option[Limit] = None)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Seq[(String, Option[Double])]] =
     inject[F, ZSetAlgebra, Seq[(String, Option[Double])]](Zrangebyscore(key, min, max, withScores, limit, Return(_)))
 
   def zrank[F[_]: Functor](key: String, member: String)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Option[Long]] =
@@ -106,7 +106,7 @@ trait ZSetFunctions extends InjectFunctions {
   def zremrangebyrank[F[_]: Functor](key: String, start: Long, stop: Long)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Long] =
     inject[F, ZSetAlgebra, Long](Zremrangebyrank(key, start, stop, Return(_)))
 
-  def zremrangebyscore[F[_]: Functor](key: String, start: ZSetTypes#Endpoint, stop: ZSetTypes#Endpoint)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Long] =
+  def zremrangebyscore[F[_]: Functor](key: String, start: Endpoint, stop: Endpoint)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Long] =
     inject[F, ZSetAlgebra, Long](Zremrangebyscore(key, start, stop, Return(_)))
 
   def zrevrange[F[_]: Functor](
@@ -118,10 +118,10 @@ trait ZSetFunctions extends InjectFunctions {
 
   def zrevrangebyscore[F[_]: Functor](
     key: String,
-    min: ZSetTypes#Endpoint,
-    max: ZSetTypes#Endpoint,
+    min: Endpoint,
+    max: Endpoint,
     withScores: Boolean = false,
-    limit: Option[KeyTypes#Limit] = None)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Seq[(String, Option[Double])]] =
+    limit: Option[Limit] = None)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Seq[(String, Option[Double])]] =
     inject[F, ZSetAlgebra, Seq[(String, Option[Double])]](Zrevrangebyscore(key, min, max, withScores, limit, Return(_)))
 
   def zrevrank[F[_]: Functor](key: String, member: String)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Option[Long]] =
@@ -134,19 +134,17 @@ trait ZSetFunctions extends InjectFunctions {
     destination: String,
     keys: NonEmptyList[String],
     weights: Option[NonEmptyList[Double]] = None,
-    aggregate: ZSetTypes#Aggregate = all.Sum)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Double] =
+    aggregate: Aggregate = Sum)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Double] =
     inject[F, ZSetAlgebra, Double](Zunionstore(destination, keys, weights, aggregate, Return(_)))
 }
 
-trait ZSetTypes {
-  sealed trait Endpoint
-  case class Closed(value: Double) extends Endpoint
-  case class Open(value: Double) extends Endpoint
-  case object -∞ extends Endpoint
-  case object +∞ extends Endpoint
+sealed trait Endpoint
+case class Closed(value: Double) extends Endpoint
+case class Open(value: Double) extends Endpoint
+case object -∞ extends Endpoint
+case object +∞ extends Endpoint
 
-  sealed trait Aggregate
-  case object Sum extends Aggregate
-  case object Min extends Aggregate
-  case object Max extends Aggregate
-}
+sealed trait Aggregate
+case object Sum extends Aggregate
+case object Min extends Aggregate
+case object Max extends Aggregate

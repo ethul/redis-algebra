@@ -13,7 +13,7 @@ final case class Brpoplpush[A](source: String, destination: String, timeout: Sec
 
 final case class Lindex[A](key: String, index: Long, h: Option[String] => A) extends ListAlgebra[A]
 
-final case class Linsert[A](key: String, position: ListTypes#Position, pivot: String, value: String, h: Option[Long] => A) extends ListAlgebra[A]
+final case class Linsert[A](key: String, position: Position, pivot: String, value: String, h: Option[Long] => A) extends ListAlgebra[A]
 
 final case class Llen[A](key: String, h: Long => A) extends ListAlgebra[A]
 
@@ -27,9 +27,9 @@ final case class Lrange[A](key: String, start: Long, stop: Long, h: Seq[String] 
 
 final case class Lrem[A](key: String, count: Long, value: String, h: Long => A) extends ListAlgebra[A]
 
-final case class Lset[A](key: String, index: Long, value: String, a: A) extends ListAlgebra[A]
+final case class Lset[A](key: String, index: Long, value: String, h: Status => A) extends ListAlgebra[A]
 
-final case class Ltrim[A](key: String, start: Long, stop: Long, a: A) extends ListAlgebra[A]
+final case class Ltrim[A](key: String, start: Long, stop: Long, a: Status => A) extends ListAlgebra[A]
 
 final case class Rpop[A](key: String, h: Option[String] => A) extends ListAlgebra[A]
 
@@ -55,8 +55,8 @@ trait ListInstances {
           case Lpushx(k, v, h) => Lpushx(k, v, x => f(h(x)))
           case Lrange(k, s, t, h) => Lrange(k, s, t, x => f(h(x)))
           case Lrem(k, c, v, h) => Lrem(k, c, v, x => f(h(x)))
-          case Lset(k, i, v, a) => Lset(k, i, v, f(a))
-          case Ltrim(k, s, t, a) => Ltrim(k, s, t, f(a))
+          case Lset(k, i, v, h) => Lset(k, i, v, x => f(h(x)))
+          case Ltrim(k, s, t, h) => Ltrim(k, s, t, x => f(h(x)))
           case Rpop(k, h) => Rpop(k, x => f(h(x)))
           case Rpoplpush(s, d, h) => Rpoplpush(s, d, x => f(h(x)))
           case Rpush(k, v, h) => Rpush(k, v, x => f(h(x)))
@@ -78,7 +78,7 @@ trait ListFunctions extends InjectFunctions {
   def lindex[F[_]: Functor](key: String, index: Long)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[String]] =
     inject[F, ListAlgebra, Option[String]](Lindex(key, index, Return(_)))
 
-  def linsert[F[_]: Functor](key: String, position: ListTypes#Position, pivot: String, value: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[Long]] =
+  def linsert[F[_]: Functor](key: String, position: Position, pivot: String, value: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[Long]] =
     inject[F, ListAlgebra, Option[Long]](Linsert(key, position, pivot, value, Return(_)))
 
   def llen[F[_]: Functor](key: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Long] =
@@ -99,11 +99,11 @@ trait ListFunctions extends InjectFunctions {
   def lrem[F[_]: Functor](key: String, count: Long, value: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Long] =
     inject[F, ListAlgebra, Long](Lrem(key, count, value, Return(_)))
 
-  def lset[F[_]: Functor](key: String, index: Long, value: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Unit] =
-    inject[F, ListAlgebra, Unit](Lset(key, index, value, Return(())))
+  def lset[F[_]: Functor](key: String, index: Long, value: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Status] =
+    inject[F, ListAlgebra, Status](Lset(key, index, value, Return(_)))
 
-  def ltrim[F[_]: Functor](key: String, start: Long, stop: Long)(implicit I: Inject[ListAlgebra, F]): Free[F, Unit] =
-    inject[F, ListAlgebra, Unit](Ltrim(key, start, stop, Return(())))
+  def ltrim[F[_]: Functor](key: String, start: Long, stop: Long)(implicit I: Inject[ListAlgebra, F]): Free[F, Status] =
+    inject[F, ListAlgebra, Status](Ltrim(key, start, stop, Return(_)))
 
   def rpop[F[_]: Functor](key: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[String]] =
     inject[F, ListAlgebra, Option[String]](Rpop(key, Return(_)))
@@ -118,8 +118,6 @@ trait ListFunctions extends InjectFunctions {
     inject[F, ListAlgebra, Long](Rpushx(key, value, Return(_)))
 }
 
-trait ListTypes {
-  sealed trait Position
-  case object Before extends Position
-  case object After extends Position
-}
+sealed trait Position
+case object Before extends Position
+case object After extends Position
