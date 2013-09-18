@@ -3,7 +3,7 @@ package algebra
 
 import scalaz.{-\/, \/-, Coproduct, Free, Functor}
 
-import Interpreter._
+import all._, Interpreter._
 
 sealed abstract class Interpreter[F[_] : Functor] {
   def runAlgebra[A](algebra: F[Mem => (A, Mem)], mem: Mem): (A, Mem)
@@ -89,7 +89,7 @@ sealed trait InterpreterInstances {
         }
     }
 
-  implicit def coproductAlgebraInterpreter[F[_] : Interpreter : Functor, G[_] : Interpreter : Functor]:
+  implicit def coproductAlgebraInterpreter[F[_]: Interpreter: Functor, G[_]: Interpreter: Functor]:
     Interpreter[({ type l[a] = Coproduct[F, G, a] })#l] = {
     type H[A] = Coproduct[F, G, A]
     new Interpreter[H] {
@@ -107,7 +107,7 @@ sealed trait InterpreterFunctions {
 
   def run[A](algebra: Free[R, A], mem: Mem): A =
     algebra.resume.fold({ (a: R[Free[R, A]]) =>
-      val (x, y) = implicitly[Interpreter[R]].runAlgebra(a.map(a =>(mem: Mem) => (a, mem)), mem)
+      val (x, y) = implicitly[Interpreter[R]].runAlgebra(a.map(a => (mem: Mem) => (a, mem)), mem)
       run(x, y)
     }, a => a)
 }

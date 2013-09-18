@@ -3,11 +3,7 @@ package algebra
 
 import scala.collection.immutable.{Set => ScalaSet}
 
-import scalaz.{Free, Functor, NonEmptyList}, Free.Return
-
-import typeclass.Inject, Inject._
-
-import SetAlgebra._
+import scalaz.{Free, Functor, Inject, InjectFunctions, NonEmptyList}, Free.Return
 
 sealed trait SetAlgebra[A]
 
@@ -39,7 +35,7 @@ final case class Sunion[A](keys: NonEmptyList[String], h: ScalaSet[String] => A)
 
 final case class Sunionstore[A](destination: String, keys: NonEmptyList[String], h: Long => A) extends SetAlgebra[A]
 
-sealed trait SetInstances {
+trait SetInstances {
   implicit val setAlgebraFunctor: Functor[SetAlgebra] =
     new Functor[SetAlgebra] {
       def map[A, B](a: SetAlgebra[A])(f: A => B): SetAlgebra[B] =
@@ -62,7 +58,7 @@ sealed trait SetInstances {
     }
 }
 
-sealed trait SetFunctions {
+trait SetFunctions extends InjectFunctions {
   def sadd[F[_]: Functor](key: String, members: NonEmptyList[String])(implicit I: Inject[SetAlgebra, F]): Free[F, Long] =
     inject[F, SetAlgebra, Long](Sadd(key, members, Return(_)))
 
@@ -105,5 +101,3 @@ sealed trait SetFunctions {
   def sunionstore[F[_]: Functor](destination: String, keys: NonEmptyList[String])(implicit I: Inject[SetAlgebra, F]): Free[F, Long] =
     inject[F, SetAlgebra, Long](Sunionstore(destination, keys, Return(_)))
 }
-
-object SetAlgebra extends SetInstances with SetFunctions

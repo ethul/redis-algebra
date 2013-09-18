@@ -1,11 +1,7 @@
 package redis
 package algebra
 
-import scalaz.{Free, Functor, NonEmptyList}, Free.Return
-
-import typeclass.Inject, Inject._
-
-import ZSetAlgebra._
+import scalaz.{Free, Functor, Inject, InjectFunctions, NonEmptyList}, Free.Return
 
 sealed trait ZSetAlgebra[A]
 
@@ -41,22 +37,7 @@ final case class Zscore[A](key: String, member: String, h: Option[Double] => A) 
 
 final case class Zunionstore[A](destination: String, keys: NonEmptyList[String], weights: Option[NonEmptyList[Double]], aggregate: Aggregate, h: Long => A) extends ZSetAlgebra[A]
 
-sealed trait ZSetTypes {
-  sealed trait Endpoint
-  case class Closed(value: Double) extends Endpoint
-  case class Open(value: Double) extends Endpoint
-  case object -∞ extends Endpoint
-  case object +∞ extends Endpoint
-
-  sealed trait Aggregate
-  case object Sum extends Aggregate
-  case object Min extends Aggregate
-  case object Max extends Aggregate
-
-  case class Limit(offset: Long, count: Long)
-}
-
-sealed trait ZSetInstances {
+trait ZSetInstances {
   implicit val zsetAlgebraFunctor: Functor[ZSetAlgebra] =
     new Functor[ZSetAlgebra] {
       def map[A, B](a: ZSetAlgebra[A])(f: A => B): ZSetAlgebra[B] =
@@ -81,7 +62,7 @@ sealed trait ZSetInstances {
     }
 }
 
-sealed trait ZSetFunctions {
+trait ZSetFunctions extends InjectFunctions {
   def zadd[F[_]: Functor](key: String, pairs: NonEmptyList[(Double, String)])(implicit I: Inject[ZSetAlgebra, F]): Free[F, Long] =
     inject[F, ZSetAlgebra, Long](Zadd(key, pairs, Return(_)))
 
@@ -157,4 +138,13 @@ sealed trait ZSetFunctions {
     inject[F, ZSetAlgebra, Double](Zunionstore(destination, keys, weights, aggregate, Return(_)))
 }
 
-object ZSetAlgebra extends ZSetTypes with ZSetInstances with ZSetFunctions
+sealed trait Endpoint
+case class Closed(value: Double) extends Endpoint
+case class Open(value: Double) extends Endpoint
+case object -∞ extends Endpoint
+case object +∞ extends Endpoint
+
+sealed trait Aggregate
+case object Sum extends Aggregate
+case object Min extends Aggregate
+case object Max extends Aggregate

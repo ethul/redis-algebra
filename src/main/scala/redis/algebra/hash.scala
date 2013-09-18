@@ -1,11 +1,7 @@
 package redis
 package algebra
 
-import scalaz.{Free, Functor, NonEmptyList}, Free.Return
-
-import typeclass.Inject, Inject._
-
-import HashAlgebra._
+import scalaz.{Free, Functor, Inject, InjectFunctions, NonEmptyList}, Free.Return
 
 sealed trait HashAlgebra[A]
 
@@ -17,7 +13,7 @@ final case class Hget[A](key: String, field: String, h: Option[String] => A) ext
 
 final case class Hgetall[A](key: String, h: Seq[(String, String)] => A) extends HashAlgebra[A]
 
-final case class Hincrby[A](key: String, field: String, increment: Long, h: Long=> A) extends HashAlgebra[A]
+final case class Hincrby[A](key: String, field: String, increment: Long, h: Long => A) extends HashAlgebra[A]
 
 final case class Hincrbyfloat[A](key: String, field: String, increment: Float, h: Float => A) extends HashAlgebra[A]
 
@@ -27,7 +23,7 @@ final case class Hlen[A](key: String, h: Long => A) extends HashAlgebra[A]
 
 final case class Hmget[A](key: String, fields: NonEmptyList[String], h: Seq[Option[String]] => A) extends HashAlgebra[A]
 
-final case class Hmset[A](key: String, pairs: NonEmptyList[(String, String)], a: A) extends HashAlgebra[A]
+final case class Hmset[A](key: String, pairs: NonEmptyList[(String, String)], h: Status => A) extends HashAlgebra[A]
 
 final case class Hset[A](key: String, field: String, value: String, h: Boolean => A) extends HashAlgebra[A]
 
@@ -35,7 +31,7 @@ final case class Hsetnx[A](key: String, field: String, value: String, h: Boolean
 
 final case class Hvals[A](key: String, h: Seq[String] => A) extends HashAlgebra[A]
 
-sealed trait HashInstances {
+trait HashInstances {
   implicit val hashAlgebraFunctor: Functor[HashAlgebra] =
     new Functor[HashAlgebra] {
       def map[A, B](a: HashAlgebra[A])(f: A => B): HashAlgebra[B] =
@@ -49,7 +45,7 @@ sealed trait HashInstances {
           case Hkeys(k, h) => Hkeys(k, x => f(h(x)))
           case Hlen(k, h) => Hlen(k, x => f(h(x)))
           case Hmget(k, s, h) => Hmget(k, s, x => f(h(x)))
-          case Hmset(k, p, a) => Hmset(k, p, f(a))
+          case Hmset(k, p, h) => Hmset(k, p, x => f(h(x)))
           case Hset(k, s, v, h) => Hset(k, s, v, x => f(h(x)))
           case Hsetnx(k, s, v, h) => Hsetnx(k, s, v, x => f(h(x)))
           case Hvals(k, h) => Hvals(k, x => f(h(x)))
@@ -57,7 +53,7 @@ sealed trait HashInstances {
     }
 }
 
-sealed trait HashFunctions {
+trait HashFunctions extends InjectFunctions {
   def hdel[F[_]: Functor](key: String, fields: NonEmptyList[String])(implicit I: Inject[HashAlgebra, F]): Free[F, Long] =
     inject[F, HashAlgebra, Long](Hdel(key, fields, Return(_)))
 
@@ -85,8 +81,8 @@ sealed trait HashFunctions {
   def hmget[F[_]: Functor](key: String, fields: NonEmptyList[String])(implicit I: Inject[HashAlgebra, F]): Free[F, Seq[Option[String]]] =
     inject[F, HashAlgebra, Seq[Option[String]]](Hmget(key, fields, Return(_)))
 
-  def hmset[F[_]: Functor](key: String, pairs: NonEmptyList[(String, String)])(implicit I: Inject[HashAlgebra, F]): Free[F, Unit] =
-    inject[F, HashAlgebra, Unit](Hmset(key, pairs, Return(())))
+  def hmset[F[_]: Functor](key: String, pairs: NonEmptyList[(String, String)])(implicit I: Inject[HashAlgebra, F]): Free[F, Status] =
+    inject[F, HashAlgebra, Status](Hmset(key, pairs, Return(_)))
 
   def hset[F[_]: Functor](key: String, field: String, value: String)(implicit I: Inject[HashAlgebra, F]): Free[F, Boolean] =
     inject[F, HashAlgebra, Boolean](Hset(key, field, value, Return(_)))
@@ -97,5 +93,3 @@ sealed trait HashFunctions {
   def hvals[F[_]: Functor](key: String)(implicit I: Inject[HashAlgebra, F]): Free[F, Seq[String]] =
     inject[F, HashAlgebra, Seq[String]](Hvals(key, Return(_)))
 }
-
-object HashAlgebra extends HashInstances with HashFunctions

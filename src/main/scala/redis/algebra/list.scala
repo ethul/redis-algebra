@@ -1,11 +1,7 @@
 package redis
 package algebra
 
-import scalaz.{Free, Functor, NonEmptyList}, Free.Return
-
-import typeclass.Inject, Inject._
-
-import ListAlgebra._
+import scalaz.{Free, Functor, Inject, InjectFunctions, NonEmptyList}, Free.Return
 
 sealed trait ListAlgebra[A]
 
@@ -31,9 +27,9 @@ final case class Lrange[A](key: String, start: Long, stop: Long, h: Seq[String] 
 
 final case class Lrem[A](key: String, count: Long, value: String, h: Long => A) extends ListAlgebra[A]
 
-final case class Lset[A](key: String, index: Long, value: String, a: A) extends ListAlgebra[A]
+final case class Lset[A](key: String, index: Long, value: String, h: Status => A) extends ListAlgebra[A]
 
-final case class Ltrim[A](key: String, start: Long, stop: Long, a: A) extends ListAlgebra[A]
+final case class Ltrim[A](key: String, start: Long, stop: Long, a: Status => A) extends ListAlgebra[A]
 
 final case class Rpop[A](key: String, h: Option[String] => A) extends ListAlgebra[A]
 
@@ -43,13 +39,7 @@ final case class Rpush[A](key: String, values: NonEmptyList[String], h: Long => 
 
 final case class Rpushx[A](key: String, value: String, h: Long => A) extends ListAlgebra[A]
 
-sealed trait ListTypes {
-  sealed trait Position
-  case object Before extends Position
-  case object After extends Position
-}
-
-sealed trait ListInstances {
+trait ListInstances {
   implicit val listAlgebraFunctor: Functor[ListAlgebra] =
     new Functor[ListAlgebra] {
       def map[A, B](a: ListAlgebra[A])(f: A => B): ListAlgebra[B] =
@@ -65,8 +55,8 @@ sealed trait ListInstances {
           case Lpushx(k, v, h) => Lpushx(k, v, x => f(h(x)))
           case Lrange(k, s, t, h) => Lrange(k, s, t, x => f(h(x)))
           case Lrem(k, c, v, h) => Lrem(k, c, v, x => f(h(x)))
-          case Lset(k, i, v, a) => Lset(k, i, v, f(a))
-          case Ltrim(k, s, t, a) => Ltrim(k, s, t, f(a))
+          case Lset(k, i, v, h) => Lset(k, i, v, x => f(h(x)))
+          case Ltrim(k, s, t, h) => Ltrim(k, s, t, x => f(h(x)))
           case Rpop(k, h) => Rpop(k, x => f(h(x)))
           case Rpoplpush(s, d, h) => Rpoplpush(s, d, x => f(h(x)))
           case Rpush(k, v, h) => Rpush(k, v, x => f(h(x)))
@@ -75,7 +65,7 @@ sealed trait ListInstances {
     }
 }
 
-sealed trait ListFunctions {
+trait ListFunctions extends InjectFunctions {
   def blpop[F[_]: Functor](keys: NonEmptyList[String], timeout: Seconds)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[(String, String)]] =
     inject[F, ListAlgebra, Option[(String, String)]](Blpop(keys, timeout, Return(_)))
 
@@ -109,11 +99,11 @@ sealed trait ListFunctions {
   def lrem[F[_]: Functor](key: String, count: Long, value: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Long] =
     inject[F, ListAlgebra, Long](Lrem(key, count, value, Return(_)))
 
-  def lset[F[_]: Functor](key: String, index: Long, value: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Unit] =
-    inject[F, ListAlgebra, Unit](Lset(key, index, value, Return(())))
+  def lset[F[_]: Functor](key: String, index: Long, value: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Status] =
+    inject[F, ListAlgebra, Status](Lset(key, index, value, Return(_)))
 
-  def ltrim[F[_]: Functor](key: String, start: Long, stop: Long)(implicit I: Inject[ListAlgebra, F]): Free[F, Unit] =
-    inject[F, ListAlgebra, Unit](Ltrim(key, start, stop, Return(())))
+  def ltrim[F[_]: Functor](key: String, start: Long, stop: Long)(implicit I: Inject[ListAlgebra, F]): Free[F, Status] =
+    inject[F, ListAlgebra, Status](Ltrim(key, start, stop, Return(_)))
 
   def rpop[F[_]: Functor](key: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[String]] =
     inject[F, ListAlgebra, Option[String]](Rpop(key, Return(_)))
@@ -128,4 +118,6 @@ sealed trait ListFunctions {
     inject[F, ListAlgebra, Long](Rpushx(key, value, Return(_)))
 }
 
-object ListAlgebra extends ListTypes with ListInstances with ListFunctions
+sealed trait Position
+case object Before extends Position
+case object After extends Position

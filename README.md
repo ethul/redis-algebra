@@ -22,7 +22,7 @@ import scalaz.std.list._
 import scalaz.syntax.all._
 
 import redis.algebra.{F, R}
-import redis.algebra.{KeyAlgebra, ListAlgebra, StringAlgebra}, KeyAlgebra._, ListAlgebra._, StringAlgebra._
+import redis.algebra.all._
 
 val e0 =
   set[R]("key", "value") >>
