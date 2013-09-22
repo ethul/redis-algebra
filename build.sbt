@@ -6,7 +6,7 @@ version := "0.0.1-SNAPSHOT"
 
 scalaVersion := "2.10.2"
 
-libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.1.0-SNAPSHOT"
+libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.1.0-M3"
 
 libraryDependencies += "org.specs2" %% "specs2" % "2.2-scalaz-7.1.0-SNAPSHOT" % "test"
 

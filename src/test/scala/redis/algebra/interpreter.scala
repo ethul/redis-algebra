@@ -1,7 +1,7 @@
 package redis
 package algebra
 
-import scalaz.{-\/, \/-, Coproduct, Free, Functor}
+import scalaz.{-\/, \/-, Coproduct, Free, Functor, ImmutableArray => IA}
 
 import all._, Interpreter._
 
@@ -26,17 +26,17 @@ sealed trait InterpreterInstances {
     }
 
   implicit val keyAgebraInterpreter: Interpreter[KeyAlgebra] =
-    new Interpreter[KeyAlgebra] {
+    new Interpreter[KeyAlgebra] with ByteStringFunctions {
       def runAlgebra[A](algebra: KeyAlgebra[Mem => (A, Mem)], mem: Mem) =
         algebra match {
           case Del(k, h) =>
             val (b, c) = k.list.foldLeft((0, mem)) {
               case ((b,c), a) =>
-                if (c.contains(a)) (b + 1, c - a) else (b, c)
+                if (c.contains(string(a))) (b + 1, c - string(a)) else (b, c)
             }
             h(b)(c)
-          case Dump(k, h) => h(mem.get(k).map(_.hashCode.toString))(mem)
-          case Exists(k, h) => h(mem.contains(k))(mem)
+          case Dump(k, h) => h(mem.get(string(k)).map(a => bytes(a.hashCode.toString)))(mem)
+          case Exists(k, h) => h(mem.contains(string(k)))(mem)
           case _ => ???
         }
     }

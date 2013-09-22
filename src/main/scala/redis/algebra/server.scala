@@ -3,31 +3,33 @@ package algebra
 
 import scalaz.{Free, Functor, Inject, InjectFunctions}, Free.Return
 
-sealed trait ServerAlgebra[A]
+import data.{Master, SlowlogResult, SlowlogSubcommand, Status}
+
+sealed abstract class ServerAlgebra[A]
 
 final case class Bgrewriteaof[A](h: Status => A) extends ServerAlgebra[A]
 
 final case class Bgsave[A](h: Status => A) extends ServerAlgebra[A]
 
-final case class Clientgetname[A](h: Option[String] => A) extends ServerAlgebra[A]
+final case class Clientgetname[A](h: Option[ByteString] => A) extends ServerAlgebra[A]
 
-final case class Clientkill[A](ip: String, port: Int, h: Status => A) extends ServerAlgebra[A]
+final case class Clientkill[A](ip: ByteString, port: Int, h: Status => A) extends ServerAlgebra[A]
 
-final case class Clientlist[A](h: Seq[Map[String, String]] => A) extends ServerAlgebra[A]
+final case class Clientlist[A](h: Seq[ByteString] => A) extends ServerAlgebra[A]
 
-final case class Clientsetname[A](name: String, h: Status => A) extends ServerAlgebra[A]
+final case class Clientsetname[A](name: ByteString, h: Status => A) extends ServerAlgebra[A]
 
-final case class Configget[A](parameter: Glob, h: Seq[String] => A) extends ServerAlgebra[A]
+final case class Configget[A](parameter: ByteString, h: Seq[ByteString] => A) extends ServerAlgebra[A]
 
 final case class Configresetstat[A](h: Status => A) extends ServerAlgebra[A]
 
 final case class Configrewrite[A](h: Status => A) extends ServerAlgebra[A]
 
-final case class Configset[A](parameter: String, value: String, h: Status => A) extends ServerAlgebra[A]
+final case class Configset[A](parameter: ByteString, value: ByteString, h: Status => A) extends ServerAlgebra[A]
 
 final case class Dbsize[A](h: Short => A) extends ServerAlgebra[A]
 
-final case class Debugobject[A](key: String, h: Status => A) extends ServerAlgebra[A]
+final case class Debugobject[A](key: ByteString, h: Status => A) extends ServerAlgebra[A]
 
 final case class Debugsegfault[A](h: Status => A) extends ServerAlgebra[A]
 
@@ -35,11 +37,11 @@ final case class Flushall[A](h: Status => A) extends ServerAlgebra[A]
 
 final case class Flushdb[A](h: Status => A) extends ServerAlgebra[A]
 
-final case class Info[A](section: Option[String], h: Map[String, Map[String, String]] => A) extends ServerAlgebra[A]
+final case class Info[A](section: Option[ByteString], h: ByteString => A) extends ServerAlgebra[A]
 
 final case class Lastsave[A](h: Seconds => A) extends ServerAlgebra[A]
 
-final case class Monitor[A](h: Stream[String] => A) extends ServerAlgebra[A]
+final case class Monitor[A](h: Stream[ByteString] => A) extends ServerAlgebra[A]
 
 final case class Save[A](h: Status => A) extends ServerAlgebra[A]
 
@@ -93,20 +95,20 @@ trait ServerFunctions extends InjectFunctions {
   def bgsave[F[_]: Functor](implicit I: Inject[ServerAlgebra, F]): Free[F, Status] =
     inject[F, ServerAlgebra, Status](Bgsave(Return(_)))
 
-  def clientgetname[F[_]: Functor](implicit I: Inject[ServerAlgebra, F]): Free[F, Option[String]] =
-    inject[F, ServerAlgebra, Option[String]](Clientgetname(Return(_)))
+  def clientgetname[F[_]: Functor](implicit I: Inject[ServerAlgebra, F]): Free[F, Option[ByteString]] =
+    inject[F, ServerAlgebra, Option[ByteString]](Clientgetname(Return(_)))
 
-  def clientkill[F[_]: Functor](ip: String, port: Int)(implicit I: Inject[ServerAlgebra, F]): Free[F, Status] =
+  def clientkill[F[_]: Functor](ip: ByteString, port: Int)(implicit I: Inject[ServerAlgebra, F]): Free[F, Status] =
     inject[F, ServerAlgebra, Status](Clientkill(ip, port, Return(_)))
 
-  def clientlist[F[_]: Functor](implicit I: Inject[ServerAlgebra, F]): Free[F, Seq[Map[String, String]]] =
-    inject[F, ServerAlgebra, Seq[Map[String, String]]](Clientlist(Return(_)))
+  def clientlist[F[_]: Functor](implicit I: Inject[ServerAlgebra, F]): Free[F, Seq[ByteString]] =
+    inject[F, ServerAlgebra, Seq[ByteString]](Clientlist(Return(_)))
 
-  def clientsetname[F[_]: Functor](name: String)(implicit I: Inject[ServerAlgebra, F]): Free[F, Status] =
+  def clientsetname[F[_]: Functor](name: ByteString)(implicit I: Inject[ServerAlgebra, F]): Free[F, Status] =
     inject[F, ServerAlgebra, Status](Clientsetname(name, Return(_)))
 
-  def configget[F[_]: Functor](parameter: Glob)(implicit I: Inject[ServerAlgebra, F]): Free[F, Seq[String]] =
-    inject[F, ServerAlgebra, Seq[String]](Configget(parameter, Return(_)))
+  def configget[F[_]: Functor](parameter: ByteString)(implicit I: Inject[ServerAlgebra, F]): Free[F, Seq[ByteString]] =
+    inject[F, ServerAlgebra, Seq[ByteString]](Configget(parameter, Return(_)))
 
   def configresetstat[F[_]: Functor](implicit I: Inject[ServerAlgebra, F]): Free[F, Status] =
     inject[F, ServerAlgebra, Status](Configresetstat(Return(_)))
@@ -114,13 +116,13 @@ trait ServerFunctions extends InjectFunctions {
   def configrewrite[F[_]: Functor](implicit I: Inject[ServerAlgebra, F]): Free[F, Status] =
     inject[F, ServerAlgebra, Status](Configrewrite(Return(_)))
 
-  def configset[F[_]: Functor](parameter: String, value: String)(implicit I: Inject[ServerAlgebra, F]): Free[F, Status] =
+  def configset[F[_]: Functor](parameter: ByteString, value: ByteString)(implicit I: Inject[ServerAlgebra, F]): Free[F, Status] =
     inject[F, ServerAlgebra, Status](Configset(parameter, value, Return(_)))
 
   def dbsize[F[_]: Functor](implicit I: Inject[ServerAlgebra, F]): Free[F, Short] =
     inject[F, ServerAlgebra, Short](Dbsize(Return(_)))
 
-  def debugobject[F[_]: Functor](key: String)(implicit I: Inject[ServerAlgebra, F]): Free[F, Status] =
+  def debugobject[F[_]: Functor](key: ByteString)(implicit I: Inject[ServerAlgebra, F]): Free[F, Status] =
     inject[F, ServerAlgebra, Status](Debugobject(key, Return(_)))
 
   def debugsegfault[F[_]: Functor](implicit I: Inject[ServerAlgebra, F]): Free[F, Status] =
@@ -132,14 +134,14 @@ trait ServerFunctions extends InjectFunctions {
   def flushdb[F[_]: Functor](implicit I: Inject[ServerAlgebra, F]): Free[F, Status] =
     inject[F, ServerAlgebra, Status](Flushdb(Return(_)))
 
-  def info[F[_]: Functor](section: Option[String] = None)(implicit I: Inject[ServerAlgebra, F]): Free[F, Map[String, Map[String, String]]] =
-    inject[F, ServerAlgebra, Map[String, Map[String, String]]](Info(section, Return(_)))
+  def info[F[_]: Functor](section: Option[ByteString] = None)(implicit I: Inject[ServerAlgebra, F]): Free[F, ByteString] =
+    inject[F, ServerAlgebra, ByteString](Info(section, Return(_)))
 
   def lastsave[F[_]: Functor](implicit I: Inject[ServerAlgebra, F]): Free[F, Seconds] =
     inject[F, ServerAlgebra, Seconds](Lastsave(Return(_)))
 
-  def monitor[F[_]: Functor](implicit I: Inject[ServerAlgebra, F]): Free[F, Stream[String]] =
-    inject[F, ServerAlgebra, Stream[String]](Monitor(Return(_)))
+  def monitor[F[_]: Functor](implicit I: Inject[ServerAlgebra, F]): Free[F, Stream[ByteString]] =
+    inject[F, ServerAlgebra, Stream[ByteString]](Monitor(Return(_)))
 
   def save[F[_]: Functor](implicit I: Inject[ServerAlgebra, F]): Free[F, Status] =
     inject[F, ServerAlgebra, Status](Save(Return(_)))
@@ -159,17 +161,3 @@ trait ServerFunctions extends InjectFunctions {
   def time[F[_]: Functor](implicit I: Inject[ServerAlgebra, F]): Free[F, (Seconds, Microseconds)] =
     inject[F, ServerAlgebra, (Seconds, Microseconds)](Time(Return(_)))
 }
-
-sealed trait Master
-case class Host(name: String, port: Int) extends Master
-case object Noone extends Master
-
-sealed trait SlowlogSubcommand
-case class GetSubcommand(limit: Option[Int] = None) extends SlowlogSubcommand
-case object LenSubcommand extends SlowlogSubcommand
-case object ResetSubcommand extends SlowlogSubcommand
-
-sealed trait SlowlogResult
-case class GetResult(value: Seq[String]) extends SlowlogResult
-case class LenResult(value: Int) extends SlowlogResult
-case object ResetResult extends SlowlogResult

@@ -3,47 +3,49 @@ package algebra
 
 import scalaz.{\/, Free, Functor, Inject, InjectFunctions, NonEmptyList}, Free.Return
 
-sealed trait KeyAlgebra[A]
+import data.{Asc, By, Limit, ObjectSubcommand, ObjectResult, Order, Type => DataType, Status}
 
-final case class Del[A](keys: NonEmptyList[String], h: Long => A) extends KeyAlgebra[A]
+sealed abstract class KeyAlgebra[A]
 
-final case class Dump[A](key: String, h: Option[String] => A) extends KeyAlgebra[A]
+final case class Del[A](keys: NonEmptyList[ByteString], h: Long => A) extends KeyAlgebra[A]
 
-final case class Exists[A](key: String, h: Boolean => A) extends KeyAlgebra[A]
+final case class Dump[A](key: ByteString, h: Option[ByteString] => A) extends KeyAlgebra[A]
 
-final case class Expire[A](key: String, in: Seconds, h: Boolean => A) extends KeyAlgebra[A]
+final case class Exists[A](key: ByteString, h: Boolean => A) extends KeyAlgebra[A]
 
-final case class Expireat[A](key: String, at: Seconds, h: Boolean => A) extends KeyAlgebra[A]
+final case class Expire[A](key: ByteString, in: Seconds, h: Boolean => A) extends KeyAlgebra[A]
 
-final case class Keys[A](pattern: Glob, h: Seq[String] => A) extends KeyAlgebra[A]
+final case class Expireat[A](key: ByteString, at: Seconds, h: Boolean => A) extends KeyAlgebra[A]
 
-final case class Migrate[A](host: String, port: Int, key: String, timeout: Milliseconds, destination: Short, copy: Boolean, replace: Boolean, h: Status => A) extends KeyAlgebra[A]
+final case class Keys[A](pattern: ByteString, h: Seq[ByteString] => A) extends KeyAlgebra[A]
 
-final case class Move[A](key: String, db: Short, h: Boolean => A) extends KeyAlgebra[A]
+final case class Migrate[A](host: ByteString, port: Int, key: ByteString, timeout: Milliseconds, destination: Short, copy: Boolean, replace: Boolean, h: Status => A) extends KeyAlgebra[A]
+
+final case class Move[A](key: ByteString, db: Short, h: Boolean => A) extends KeyAlgebra[A]
 
 final case class Object[A](subcommand: ObjectSubcommand, h: Option[ObjectResult] => A) extends KeyAlgebra[A]
 
-final case class Persist[A](key: String, h: Boolean => A) extends KeyAlgebra[A]
+final case class Persist[A](key: ByteString, h: Boolean => A) extends KeyAlgebra[A]
 
-final case class Pexpire[A](key: String, in: Milliseconds, h: Boolean => A) extends KeyAlgebra[A]
+final case class Pexpire[A](key: ByteString, in: Milliseconds, h: Boolean => A) extends KeyAlgebra[A]
 
-final case class Pexpireat[A](key: String, at: Milliseconds, h: Boolean => A) extends KeyAlgebra[A]
+final case class Pexpireat[A](key: ByteString, at: Milliseconds, h: Boolean => A) extends KeyAlgebra[A]
 
-final case class Pttl[A](key: String, h: Option[Milliseconds] => A) extends KeyAlgebra[A]
+final case class Pttl[A](key: ByteString, h: Option[Milliseconds] => A) extends KeyAlgebra[A]
 
-final case class Randomkey[A](h: Option[String] => A) extends KeyAlgebra[A]
+final case class Randomkey[A](h: Option[ByteString] => A) extends KeyAlgebra[A]
 
-final case class Rename[A](key: String, name: String, h: Status => A) extends KeyAlgebra[A]
+final case class Rename[A](key: ByteString, name: ByteString, h: Status => A) extends KeyAlgebra[A]
 
-final case class Renamenx[A](key: String, name: String, h: Boolean => A) extends KeyAlgebra[A]
+final case class Renamenx[A](key: ByteString, name: ByteString, h: Boolean => A) extends KeyAlgebra[A]
 
-final case class Restore[A](key: String, ttl: Option[Milliseconds], value: String, h: Status => A) extends KeyAlgebra[A]
+final case class Restore[A](key: ByteString, ttl: Option[Milliseconds], value: ByteString, h: Status => A) extends KeyAlgebra[A]
 
-final case class Sort[A](key: String, by: Option[By], limit: Option[Limit], get: Seq[Glob], order: Order, alpha: Boolean, store: Option[String], h: Seq[String] \/ Long => A) extends KeyAlgebra[A]
+final case class Sort[A](key: ByteString, by: Option[By], limit: Option[Limit], get: Seq[ByteString], order: Order, alpha: Boolean, store: Option[ByteString], h: Seq[ByteString] \/ Long => A) extends KeyAlgebra[A]
 
-final case class Ttl[A](key: String, h: Option[Seconds] => A) extends KeyAlgebra[A]
+final case class Ttl[A](key: ByteString, h: Option[Seconds] => A) extends KeyAlgebra[A]
 
-final case class Type[A](key: String, h: Option[RedisType] => A) extends KeyAlgebra[A]
+final case class Type[A](key: ByteString, h: Option[DataType] => A) extends KeyAlgebra[A]
 
 trait KeyInstances {
   implicit val keyAlgebraFunctor: Functor[KeyAlgebra] =
@@ -75,104 +77,77 @@ trait KeyInstances {
 }
 
 trait KeyFunctions extends InjectFunctions {
-  def del[F[_]: Functor](keys: NonEmptyList[String])(implicit I: Inject[KeyAlgebra, F]): Free[F, Long] =
+  def del[F[_]: Functor](keys: NonEmptyList[ByteString])(implicit I: Inject[KeyAlgebra, F]): Free[F, Long] =
     inject[F, KeyAlgebra, Long](Del(keys, Return(_)))
 
-  def dump[F[_]: Functor](key: String)(implicit I: Inject[KeyAlgebra, F]): Free[F, Option[String]] =
-    inject[F, KeyAlgebra, Option[String]](Dump(key, Return(_)))
+  def dump[F[_]: Functor](key: ByteString)(implicit I: Inject[KeyAlgebra, F]): Free[F, Option[ByteString]] =
+    inject[F, KeyAlgebra, Option[ByteString]](Dump(key, Return(_)))
 
-  def exists[F[_]: Functor](key: String)(implicit I: Inject[KeyAlgebra, F]): Free[F, Boolean] =
+  def exists[F[_]: Functor](key: ByteString)(implicit I: Inject[KeyAlgebra, F]): Free[F, Boolean] =
     inject[F, KeyAlgebra, Boolean](Exists(key, Return(_)))
 
-  def expire[F[_]: Functor](key: String, in: Seconds)(implicit I: Inject[KeyAlgebra, F]): Free[F, Boolean] =
+  def expire[F[_]: Functor](key: ByteString, in: Seconds)(implicit I: Inject[KeyAlgebra, F]): Free[F, Boolean] =
     inject[F, KeyAlgebra, Boolean](Expire(key, in, Return(_)))
 
-  def expireat[F[_]: Functor](key: String, at: Seconds)(implicit I: Inject[KeyAlgebra, F]): Free[F, Boolean] =
+  def expireat[F[_]: Functor](key: ByteString, at: Seconds)(implicit I: Inject[KeyAlgebra, F]): Free[F, Boolean] =
     inject[F, KeyAlgebra, Boolean](Expireat(key, at, Return(_)))
 
-  def keys[F[_]: Functor](pattern: Glob)(implicit I: Inject[KeyAlgebra, F]): Free[F, Seq[String]] =
-    inject[F, KeyAlgebra, Seq[String]](Keys(pattern, Return(_)))
+  def keys[F[_]: Functor](pattern: ByteString)(implicit I: Inject[KeyAlgebra, F]): Free[F, Seq[ByteString]] =
+    inject[F, KeyAlgebra, Seq[ByteString]](Keys(pattern, Return(_)))
 
   def migrate[F[_]: Functor](
-    host: String,
+    host: ByteString,
     port: Int,
-    key: String,
+    key: ByteString,
     timeout: Milliseconds,
     destination: Short,
     copy: Boolean = false,
     replace: Boolean = false)(implicit I: Inject[KeyAlgebra, F]): Free[F, Status] =
     inject[F, KeyAlgebra, Status](Migrate(host, port, key, timeout, destination, copy, replace, Return(_)))
 
-  def move[F[_]: Functor](key: String, db: Short)(implicit I: Inject[KeyAlgebra, F]): Free[F, Boolean] =
+  def move[F[_]: Functor](key: ByteString, db: Short)(implicit I: Inject[KeyAlgebra, F]): Free[F, Boolean] =
     inject[F, KeyAlgebra, Boolean](Move(key, db, Return(_)))
 
   def `object`[F[_]: Functor](subcommand: ObjectSubcommand)(implicit I: Inject[KeyAlgebra, F]): Free[F, Option[ObjectResult]] =
     inject[F, KeyAlgebra, Option[ObjectResult]](Object(subcommand, Return(_)))
 
-  def persist[F[_]: Functor](key: String)(implicit I: Inject[KeyAlgebra, F]): Free[F, Boolean] =
+  def persist[F[_]: Functor](key: ByteString)(implicit I: Inject[KeyAlgebra, F]): Free[F, Boolean] =
     inject[F, KeyAlgebra, Boolean](Persist(key, Return(_)))
 
-  def pexpire[F[_]: Functor](key: String, in: Milliseconds)(implicit I: Inject[KeyAlgebra, F]): Free[F, Boolean] =
+  def pexpire[F[_]: Functor](key: ByteString, in: Milliseconds)(implicit I: Inject[KeyAlgebra, F]): Free[F, Boolean] =
     inject[F, KeyAlgebra, Boolean](Pexpire(key, in, Return(_)))
 
-  def pexpireat[F[_]: Functor](key: String, at: Milliseconds)(implicit I: Inject[KeyAlgebra, F]): Free[F, Boolean] =
+  def pexpireat[F[_]: Functor](key: ByteString, at: Milliseconds)(implicit I: Inject[KeyAlgebra, F]): Free[F, Boolean] =
     inject[F, KeyAlgebra, Boolean](Pexpireat(key, at, Return(_)))
 
-  def pttl[F[_]: Functor](key: String)(implicit I: Inject[KeyAlgebra, F]): Free[F, Option[Milliseconds]] =
+  def pttl[F[_]: Functor](key: ByteString)(implicit I: Inject[KeyAlgebra, F]): Free[F, Option[Milliseconds]] =
     inject[F, KeyAlgebra, Option[Milliseconds]](Pttl(key, Return(_)))
 
-  def randomkey[F[_]: Functor](implicit I: Inject[KeyAlgebra, F]): Free[F, Option[String]] =
-    inject[F, KeyAlgebra, Option[String]](Randomkey(Return(_)))
+  def randomkey[F[_]: Functor](implicit I: Inject[KeyAlgebra, F]): Free[F, Option[ByteString]] =
+    inject[F, KeyAlgebra, Option[ByteString]](Randomkey(Return(_)))
 
-  def rename[F[_]: Functor](key: String, name: String)(implicit I: Inject[KeyAlgebra, F]): Free[F, Status] =
+  def rename[F[_]: Functor](key: ByteString, name: ByteString)(implicit I: Inject[KeyAlgebra, F]): Free[F, Status] =
     inject[F, KeyAlgebra, Status](Rename(key, name, Return(_)))
 
-  def renamenx[F[_]: Functor](key: String, name: String)(implicit I: Inject[KeyAlgebra, F]): Free[F, Boolean] =
+  def renamenx[F[_]: Functor](key: ByteString, name: ByteString)(implicit I: Inject[KeyAlgebra, F]): Free[F, Boolean] =
     inject[F, KeyAlgebra, Boolean](Renamenx(key, name, Return(_)))
 
-  def restore[F[_]: Functor](key: String, value: String, ttl: Option[Milliseconds] = None)(implicit I: Inject[KeyAlgebra, F]): Free[F, Status] =
+  def restore[F[_]: Functor](key: ByteString, value: ByteString, ttl: Option[Milliseconds] = None)(implicit I: Inject[KeyAlgebra, F]): Free[F, Status] =
     inject[F, KeyAlgebra, Status](Restore(key, ttl, value, Return(_)))
 
   def sort[F[_]: Functor](
-    key: String,
+    key: ByteString,
     by: Option[By] = None,
     limit: Option[Limit] = None,
-    get: Seq[Glob] = Nil,
+    get: Seq[ByteString] = Nil,
     order: Order = Asc,
     alpha: Boolean = false,
-    store: Option[String] = None)(implicit I: Inject[KeyAlgebra, F]): Free[F, Seq[String] \/ Long] =
-    inject[F, KeyAlgebra, Seq[String] \/ Long](Sort(key, by, limit, get, order, alpha, store, Return(_)))
+    store: Option[ByteString] = None)(implicit I: Inject[KeyAlgebra, F]): Free[F, Seq[ByteString] \/ Long] =
+    inject[F, KeyAlgebra, Seq[ByteString] \/ Long](Sort(key, by, limit, get, order, alpha, store, Return(_)))
 
-  def ttl[F[_]: Functor](key: String)(implicit I: Inject[KeyAlgebra, F]): Free[F, Option[Seconds]] =
+  def ttl[F[_]: Functor](key: ByteString)(implicit I: Inject[KeyAlgebra, F]): Free[F, Option[Seconds]] =
     inject[F, KeyAlgebra, Option[Seconds]](Ttl(key, Return(_)))
 
-  def `type`[F[_]: Functor](key: String)(implicit I: Inject[KeyAlgebra, F]): Free[F, Option[RedisType]] =
-    inject[F, KeyAlgebra, Option[RedisType]](Type(key, Return(_)))
+  def `type`[F[_]: Functor](key: ByteString)(implicit I: Inject[KeyAlgebra, F]): Free[F, Option[DataType]] =
+    inject[F, KeyAlgebra, Option[DataType]](Type(key, Return(_)))
 }
-
-sealed trait RedisType
-case object RedisString extends RedisType { override def toString = "string" }
-case object RedisList extends RedisType { override def toString = "list" }
-case object RedisSet extends RedisType { override def toString = "set" }
-case object RedisZSet extends RedisType { override def toString = "zset" }
-case object RedisHash extends RedisType { override def toString = "hash" }
-
-sealed trait ObjectSubcommand
-case class RefcountSubcommand(key: String) extends ObjectSubcommand
-case class EncodingSubcommand(key: String) extends ObjectSubcommand
-case class IdletimeSubcommand(key: String) extends ObjectSubcommand
-
-sealed trait ObjectResult
-case class RefcountResult(value: Long) extends ObjectResult
-case class EncodingResult(value: String) extends ObjectResult
-case class IdletimeResult(value: Long) extends ObjectResult
-
-sealed trait By
-case object Nosort extends By
-case class Pattern(pattern: Glob) extends By
-
-sealed trait Order
-case object Asc extends Order
-case object Desc extends Order
-
-case class Limit(offset: Long, count: Long)

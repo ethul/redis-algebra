@@ -3,11 +3,13 @@ package algebra
 
 import scalaz.{Free, Functor, Inject, InjectFunctions}, Free.Return
 
-sealed trait ConnectionAlgebra[A]
+import data.Status
 
-final case class Auth[A](password: String, h: Status => A) extends ConnectionAlgebra[A]
+sealed abstract class ConnectionAlgebra[A]
 
-final case class Echo[A](message: String, h: String => A) extends ConnectionAlgebra[A]
+final case class Auth[A](password: ByteString, h: Status => A) extends ConnectionAlgebra[A]
+
+final case class Echo[A](message: ByteString, h: ByteString => A) extends ConnectionAlgebra[A]
 
 final case class Ping[A](h: Status => A) extends ConnectionAlgebra[A]
 
@@ -30,11 +32,11 @@ trait ConnectionInstances {
 }
 
 trait ConnectionFunctions extends InjectFunctions {
-  def auth[F[_]: Functor](password: String)(implicit I: Inject[ConnectionAlgebra, F]): Free[F, Status] =
+  def auth[F[_]: Functor](password: ByteString)(implicit I: Inject[ConnectionAlgebra, F]): Free[F, Status] =
     inject[F, ConnectionAlgebra, Status](Auth(password, Return(_)))
 
-  def echo[F[_]: Functor](message: String)(implicit I: Inject[ConnectionAlgebra, F]): Free[F, String] =
-    inject[F, ConnectionAlgebra, String](Echo(message, Return(_)))
+  def echo[F[_]: Functor](message: ByteString)(implicit I: Inject[ConnectionAlgebra, F]): Free[F, ByteString] =
+    inject[F, ConnectionAlgebra, ByteString](Echo(message, Return(_)))
 
   def ping[F[_]: Functor](implicit I: Inject[ConnectionAlgebra, F]): Free[F, Status] =
     inject[F, ConnectionAlgebra, Status](Ping(Return(_)))
@@ -45,8 +47,3 @@ trait ConnectionFunctions extends InjectFunctions {
   def select[F[_]: Functor](index: Short)(implicit I: Inject[ConnectionAlgebra, F]): Free[F, Status] =
     inject[F, ConnectionAlgebra, Status](Select(index, Return(_)))
 }
-
-sealed abstract class Status
-case object Ok extends Status
-case object Error extends Status
-case object Wrongtype extends Status
