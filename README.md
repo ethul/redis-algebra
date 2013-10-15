@@ -17,24 +17,31 @@ resolvers += "Github ethul/ivy-repository snapshots" at "https://github.com/ethu
 # Usage
 
 ```scala
-import scalaz.NonEmptyList, NonEmptyList._
+import scala.language.implicitConversions
+import scalaz.{CharSet, NonEmptyList}, NonEmptyList.nels
 import scalaz.std.list._
-import scalaz.syntax.all._
+import scalaz.syntax.{Ops, monad, traverse}, monad._, traverse._
 
 import redis.algebra.{F, R}
 import redis.algebra.all._
 
 val e0 =
-  set[R]("key", "value") >>
-  get[R]("key")
+  set[R]("key".utf8, "value".utf8) >>
+  get[R]("key".utf8)
 
 val e1 =
-  set[R]("counter", "100") >>
-  incr[R]("counter") >>
-  incr[R]("counter") >>
-  incrby[R]("counter", 10)
+  set[R]("counter".utf8, 100L.utf8) >>
+  incr[R]("counter".utf8) >>
+  incr[R]("counter".utf8) >>
+  incrby[R]("counter".utf8, 10L)
 
 val e2 =
-  List("first", "second", "third").map(a => rpush[R]("messages", nels(a))).sequenceU >>
-  lrange[R]("messages", 0, 2)
+  List("first".utf8, "second".utf8, "third".utf8).map(a => rpush[R]("messages".utf8, nels(a))).sequenceU >>
+  lrange[R]("messages".utf8, 0, 2)
+
+implicit def StringToStringOps(a: String): StringOps = new StringOps { val self = a }
+
+implicit def LongToStringOps(a: Long): StringOps = new StringOps { val self = a.toString }
+
+sealed abstract class StringOps extends Ops[String] { final def utf8 = self.getBytes(CharSet.UTF8).toIndexedSeq }
 ```
