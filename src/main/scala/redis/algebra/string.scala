@@ -9,7 +9,7 @@ sealed abstract class StringAlgebra[A]
 
 final case class Append[A](key: ByteString, value: ByteString, h: Long => A) extends StringAlgebra[A]
 
-final case class Bitcount[A](key: ByteString, start: Option[Long], end: Option[Long], h: Long => A) extends StringAlgebra[A]
+final case class Bitcount[A](key: ByteString, range: Option[(Long, Long)], h: Long => A) extends StringAlgebra[A]
 
 final case class Bitop[A](operation: BitOperation, h: Long => A) extends StringAlgebra[A]
 
@@ -57,7 +57,7 @@ trait StringInstances {
       def map[A, B](a: StringAlgebra[A])(f: A => B): StringAlgebra[B] =
         a match {
           case Append(k, v, h) => Append(k, v, x => f(h(x)))
-          case Bitcount(k, s, e, h) => Bitcount(k, s, e, x => f(h(x)))
+          case Bitcount(k, r, h) => Bitcount(k, r, x => f(h(x)))
           case Bitop(o, h) => Bitop(o, x => f(h(x)))
           case Decr(k, h) => Decr(k, x => f(h(x)))
           case Decrby(k, d, h) => Decrby(k, d, x => f(h(x)))
@@ -86,11 +86,8 @@ trait StringFunctions extends InjectFunctions {
   def append[F[_]: Functor](key: ByteString, value: ByteString)(implicit I: Inject[StringAlgebra, F]): Free[F, Long] =
     inject[F, StringAlgebra, Long](Append(key, value, Return(_)))
 
-  def bitcount[F[_]: Functor](
-    key: ByteString,
-    start: Option[Long] = None,
-    end: Option[Long] = None)(implicit I: Inject[StringAlgebra, F]): Free[F, Long] =
-    inject[F, StringAlgebra, Long](Bitcount(key, start, end, Return(_)))
+  def bitcount[F[_]: Functor](key: ByteString, range: Option[(Long, Long)])(implicit I: Inject[StringAlgebra, F]): Free[F, Long] =
+    inject[F, StringAlgebra, Long](Bitcount(key, range, Return(_)))
 
   def bitop[F[_]: Functor](operation: BitOperation)(implicit I: Inject[StringAlgebra, F]): Free[F, Long] =
     inject[F, StringAlgebra, Long](Bitop(operation, Return(_)))

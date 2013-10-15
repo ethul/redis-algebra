@@ -4,7 +4,7 @@ organization := "com.github.ethul"
 
 version := "0.0.1-SNAPSHOT"
 
-scalaVersion := "2.10.2"
+scalaVersion := "2.10.3"
 
 libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.1.0-M3"
 
