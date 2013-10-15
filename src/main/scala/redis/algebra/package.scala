@@ -1,5 +1,7 @@
 package redis
 
+import scala.collection.immutable.Seq
+
 import scalaz.{Coproduct, Free}
 
 package object algebra {
@@ -9,7 +11,7 @@ package object algebra {
 
   type Microseconds = Int
 
-  type Glob = String
+  type ByteString = Seq[Byte]
 
   type C0[A] = Coproduct[ConnectionAlgebra, HashAlgebra, A]
 
@@ -34,6 +36,24 @@ package object algebra {
   type R[A] = RedisAlgebra[A]
 
   type F[A] = RedisAlgebraFree[A]
+
+  object connection extends ConnectionInstances with ConnectionFunctions
+
+  object hash extends HashInstances with HashFunctions
+
+  object key extends KeyInstances with KeyFunctions
+
+  object list extends ListInstances with ListFunctions
+
+  object script extends ScriptInstances with ScriptFunctions
+
+  object server extends ServerInstances with ServerFunctions
+
+  object set extends SetInstances with SetFunctions
+
+  object string extends StringInstances with StringFunctions
+
+  object zset extends ZSetInstances with ZSetFunctions
 
   object all
     extends ConnectionInstances

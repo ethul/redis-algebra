@@ -3,41 +3,43 @@ package algebra
 
 import scalaz.{Free, Functor, Inject, InjectFunctions, NonEmptyList}, Free.Return
 
-sealed trait ListAlgebra[A]
+import data.{Asc, Position, Status}
 
-final case class Blpop[A](keys: NonEmptyList[String], timeout: Seconds, h: Option[(String, String)] => A) extends ListAlgebra[A]
+sealed abstract class ListAlgebra[A]
 
-final case class Brpop[A](keys: NonEmptyList[String], timeout: Seconds, h: Option[(String, String)] => A) extends ListAlgebra[A]
+final case class Blpop[A](keys: NonEmptyList[ByteString], timeout: Seconds, h: Option[(ByteString, ByteString)] => A) extends ListAlgebra[A]
 
-final case class Brpoplpush[A](source: String, destination: String, timeout: Seconds, h: Option[String] => A) extends ListAlgebra[A]
+final case class Brpop[A](keys: NonEmptyList[ByteString], timeout: Seconds, h: Option[(ByteString, ByteString)] => A) extends ListAlgebra[A]
 
-final case class Lindex[A](key: String, index: Long, h: Option[String] => A) extends ListAlgebra[A]
+final case class Brpoplpush[A](source: ByteString, destination: ByteString, timeout: Seconds, h: Option[ByteString] => A) extends ListAlgebra[A]
 
-final case class Linsert[A](key: String, position: Position, pivot: String, value: String, h: Option[Long] => A) extends ListAlgebra[A]
+final case class Lindex[A](key: ByteString, index: Long, h: Option[ByteString] => A) extends ListAlgebra[A]
 
-final case class Llen[A](key: String, h: Long => A) extends ListAlgebra[A]
+final case class Linsert[A](key: ByteString, position: Position, pivot: ByteString, value: ByteString, h: Option[Long] => A) extends ListAlgebra[A]
 
-final case class Lpop[A](key: String, h: Option[String] => A) extends ListAlgebra[A]
+final case class Llen[A](key: ByteString, h: Long => A) extends ListAlgebra[A]
 
-final case class Lpush[A](key: String, values: NonEmptyList[String], h: Long => A) extends ListAlgebra[A]
+final case class Lpop[A](key: ByteString, h: Option[ByteString] => A) extends ListAlgebra[A]
 
-final case class Lpushx[A](key: String, value: String, h: Long => A) extends ListAlgebra[A]
+final case class Lpush[A](key: ByteString, values: NonEmptyList[ByteString], h: Long => A) extends ListAlgebra[A]
 
-final case class Lrange[A](key: String, start: Long, stop: Long, h: Seq[String] => A) extends ListAlgebra[A]
+final case class Lpushx[A](key: ByteString, value: ByteString, h: Long => A) extends ListAlgebra[A]
 
-final case class Lrem[A](key: String, count: Long, value: String, h: Long => A) extends ListAlgebra[A]
+final case class Lrange[A](key: ByteString, start: Long, stop: Long, h: Seq[ByteString] => A) extends ListAlgebra[A]
 
-final case class Lset[A](key: String, index: Long, value: String, h: Status => A) extends ListAlgebra[A]
+final case class Lrem[A](key: ByteString, count: Long, value: ByteString, h: Long => A) extends ListAlgebra[A]
 
-final case class Ltrim[A](key: String, start: Long, stop: Long, a: Status => A) extends ListAlgebra[A]
+final case class Lset[A](key: ByteString, index: Long, value: ByteString, h: Status => A) extends ListAlgebra[A]
 
-final case class Rpop[A](key: String, h: Option[String] => A) extends ListAlgebra[A]
+final case class Ltrim[A](key: ByteString, start: Long, stop: Long, a: Status => A) extends ListAlgebra[A]
 
-final case class Rpoplpush[A](source: String, destination: String, h: Option[String] => A) extends ListAlgebra[A]
+final case class Rpop[A](key: ByteString, h: Option[ByteString] => A) extends ListAlgebra[A]
 
-final case class Rpush[A](key: String, values: NonEmptyList[String], h: Long => A) extends ListAlgebra[A]
+final case class Rpoplpush[A](source: ByteString, destination: ByteString, h: Option[ByteString] => A) extends ListAlgebra[A]
 
-final case class Rpushx[A](key: String, value: String, h: Long => A) extends ListAlgebra[A]
+final case class Rpush[A](key: ByteString, values: NonEmptyList[ByteString], h: Long => A) extends ListAlgebra[A]
+
+final case class Rpushx[A](key: ByteString, value: ByteString, h: Long => A) extends ListAlgebra[A]
 
 trait ListInstances {
   implicit val listAlgebraFunctor: Functor[ListAlgebra] =
@@ -66,58 +68,54 @@ trait ListInstances {
 }
 
 trait ListFunctions extends InjectFunctions {
-  def blpop[F[_]: Functor](keys: NonEmptyList[String], timeout: Seconds)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[(String, String)]] =
-    inject[F, ListAlgebra, Option[(String, String)]](Blpop(keys, timeout, Return(_)))
+  def blpop[F[_]: Functor](keys: NonEmptyList[ByteString], timeout: Seconds)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[(ByteString, ByteString)]] =
+    inject[F, ListAlgebra, Option[(ByteString, ByteString)]](Blpop(keys, timeout, Return(_)))
 
-  def brpop[F[_]: Functor](keys: NonEmptyList[String], timeout: Seconds)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[(String, String)]] =
-    inject[F, ListAlgebra, Option[(String, String)]](Brpop(keys, timeout, Return(_)))
+  def brpop[F[_]: Functor](keys: NonEmptyList[ByteString], timeout: Seconds)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[(ByteString, ByteString)]] =
+    inject[F, ListAlgebra, Option[(ByteString, ByteString)]](Brpop(keys, timeout, Return(_)))
 
-  def brpoplpush[F[_]: Functor](source: String, destination: String, timeout: Seconds)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[String]] =
-    inject[F, ListAlgebra, Option[String]](Brpoplpush(source, destination, timeout, Return(_)))
+  def brpoplpush[F[_]: Functor](source: ByteString, destination: ByteString, timeout: Seconds)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[ByteString]] =
+    inject[F, ListAlgebra, Option[ByteString]](Brpoplpush(source, destination, timeout, Return(_)))
 
-  def lindex[F[_]: Functor](key: String, index: Long)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[String]] =
-    inject[F, ListAlgebra, Option[String]](Lindex(key, index, Return(_)))
+  def lindex[F[_]: Functor](key: ByteString, index: Long)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[ByteString]] =
+    inject[F, ListAlgebra, Option[ByteString]](Lindex(key, index, Return(_)))
 
-  def linsert[F[_]: Functor](key: String, position: Position, pivot: String, value: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[Long]] =
+  def linsert[F[_]: Functor](key: ByteString, position: Position, pivot: ByteString, value: ByteString)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[Long]] =
     inject[F, ListAlgebra, Option[Long]](Linsert(key, position, pivot, value, Return(_)))
 
-  def llen[F[_]: Functor](key: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Long] =
+  def llen[F[_]: Functor](key: ByteString)(implicit I: Inject[ListAlgebra, F]): Free[F, Long] =
     inject[F, ListAlgebra, Long](Llen(key, Return(_)))
 
-  def lpop[F[_]: Functor](key: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[String]] =
-    inject[F, ListAlgebra, Option[String]](Lpop(key, Return(_)))
+  def lpop[F[_]: Functor](key: ByteString)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[ByteString]] =
+    inject[F, ListAlgebra, Option[ByteString]](Lpop(key, Return(_)))
 
-  def lpush[F[_]: Functor](key: String, values: NonEmptyList[String])(implicit I: Inject[ListAlgebra, F]): Free[F, Long] =
+  def lpush[F[_]: Functor](key: ByteString, values: NonEmptyList[ByteString])(implicit I: Inject[ListAlgebra, F]): Free[F, Long] =
     inject[F, ListAlgebra, Long](Lpush(key, values, Return(_)))
 
-  def lpushx[F[_]: Functor](key: String, value: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Long] =
+  def lpushx[F[_]: Functor](key: ByteString, value: ByteString)(implicit I: Inject[ListAlgebra, F]): Free[F, Long] =
     inject[F, ListAlgebra, Long](Lpushx(key, value, Return(_)))
 
-  def lrange[F[_]: Functor](key: String, start: Long, stop: Long)(implicit I: Inject[ListAlgebra, F]): Free[F, Seq[String]] =
-    inject[F, ListAlgebra, Seq[String]](Lrange(key, start, stop, Return(_)))
+  def lrange[F[_]: Functor](key: ByteString, start: Long, stop: Long)(implicit I: Inject[ListAlgebra, F]): Free[F, Seq[ByteString]] =
+    inject[F, ListAlgebra, Seq[ByteString]](Lrange(key, start, stop, Return(_)))
 
-  def lrem[F[_]: Functor](key: String, count: Long, value: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Long] =
+  def lrem[F[_]: Functor](key: ByteString, count: Long, value: ByteString)(implicit I: Inject[ListAlgebra, F]): Free[F, Long] =
     inject[F, ListAlgebra, Long](Lrem(key, count, value, Return(_)))
 
-  def lset[F[_]: Functor](key: String, index: Long, value: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Status] =
+  def lset[F[_]: Functor](key: ByteString, index: Long, value: ByteString)(implicit I: Inject[ListAlgebra, F]): Free[F, Status] =
     inject[F, ListAlgebra, Status](Lset(key, index, value, Return(_)))
 
-  def ltrim[F[_]: Functor](key: String, start: Long, stop: Long)(implicit I: Inject[ListAlgebra, F]): Free[F, Status] =
+  def ltrim[F[_]: Functor](key: ByteString, start: Long, stop: Long)(implicit I: Inject[ListAlgebra, F]): Free[F, Status] =
     inject[F, ListAlgebra, Status](Ltrim(key, start, stop, Return(_)))
 
-  def rpop[F[_]: Functor](key: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[String]] =
-    inject[F, ListAlgebra, Option[String]](Rpop(key, Return(_)))
+  def rpop[F[_]: Functor](key: ByteString)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[ByteString]] =
+    inject[F, ListAlgebra, Option[ByteString]](Rpop(key, Return(_)))
 
-  def rpoplpush[F[_]: Functor](source: String, destination: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[String]] =
-    inject[F, ListAlgebra, Option[String]](Rpoplpush(source, destination, Return(_)))
+  def rpoplpush[F[_]: Functor](source: ByteString, destination: ByteString)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[ByteString]] =
+    inject[F, ListAlgebra, Option[ByteString]](Rpoplpush(source, destination, Return(_)))
 
-  def rpush[F[_]: Functor](key: String, values: NonEmptyList[String])(implicit I: Inject[ListAlgebra, F]): Free[F, Long] =
+  def rpush[F[_]: Functor](key: ByteString, values: NonEmptyList[ByteString])(implicit I: Inject[ListAlgebra, F]): Free[F, Long] =
     inject[F, ListAlgebra, Long](Rpush(key, values, Return(_)))
 
-  def rpushx[F[_]: Functor](key: String, value: String)(implicit I: Inject[ListAlgebra, F]): Free[F, Long] =
+  def rpushx[F[_]: Functor](key: ByteString, value: ByteString)(implicit I: Inject[ListAlgebra, F]): Free[F, Long] =
     inject[F, ListAlgebra, Long](Rpushx(key, value, Return(_)))
 }
-
-sealed trait Position
-case object Before extends Position
-case object After extends Position

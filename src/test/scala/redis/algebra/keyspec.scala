@@ -3,11 +3,11 @@ package algebra
 
 import org.specs2._
 
-import scalaz.NonEmptyList._
+import scalaz.{ImmutableArray => IA, NonEmptyList}, NonEmptyList._
 
 import all._
 
-class KeyAlgebraSpec extends Specification { def is = s2"""
+class KeyAlgebraSpec extends Specification with ByteStringFunctions { def is = s2"""
   This is the specification for the KeyAlgebra.
 
   A Del command issued with some existing keys should
@@ -28,7 +28,7 @@ class KeyAlgebraSpec extends Specification { def is = s2"""
 
   def e1 = interpreter.run(del(nels(keya, keyb, nonexisting)), map) === 2
 
-  def e2 = interpreter.run(dump(keya), map) must beSome(serialize("a"))
+  def e2 = interpreter.run(dump(keya), map).map(string(_)) must beSome(serialize(string(keya)))
 
   def e3 = interpreter.run(dump(nonexisting), map) must beNone
 
@@ -38,15 +38,15 @@ class KeyAlgebraSpec extends Specification { def is = s2"""
 
   def serialize(k: String) = map(k).hashCode.toString
 
-  val keya = "a"
+  val keya = bytes("a")
 
-  val keyb = "b"
+  val keyb = bytes("b")
 
-  val keyc = "c"
+  val keyc = bytes("c")
 
-  val nonexisting = "x"
+  val nonexisting = bytes("x")
 
-  val map = Map(keya -> "x", keyb -> "y", keyc -> "z")
+  val map = Map(string(keya) -> "x", string(keyb) -> "y", string(keyc) -> "z")
 
   val interpreter = Interpreter
 }
