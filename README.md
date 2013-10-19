@@ -6,12 +6,12 @@ The functions that this library provides correspond to the list of [Redis comman
 
 # Install
 
-Currently, a snapshot of the Redis Algebra library is available in the following repository. The snippet below may be added to an SBT build file in order to use the Redis Algebra.
+Releases and snapshots of the Redis Algebra library are published to the [Sonatype OSS Repository Hosting Service](https://oss.sonatype.org). The necessary [SBT Resolvers](http://www.scala-sbt.org/release/docs/Detailed-Topics/Resolvers.html) may be added as follows to your SBT build file.
 
 ```scala
-libraryDependencies += "redis-algebra" %% "redis-algebra" % "0.0.1-SNAPSHOT"
+resolvers += "Sonatype releases" at "http://oss.sonatype.org/content/repositories/releases/"
 
-resolvers += "Github ethul/ivy-repository snapshots" at "https://github.com/ethul/ivy-repository/raw/master/snapshots/"
+resolvers += "Sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
 ```
 
 # Usage
