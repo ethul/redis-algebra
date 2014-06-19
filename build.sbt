@@ -4,15 +4,15 @@ name := "redis-algebra"
 
 version := "0.1.0-SNAPSHOT"
 
-scalaVersion := "2.10.3"
+scalaVersion := "2.10.4"
 
-libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.1.0-M3"
+libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.1.0-M7"
 
 libraryDependencies += "org.specs2" %% "specs2" % "2.2.2-scalaz-7.1.0-M3" % "test"
 
-resolvers += "Sonatype releases" at "http://oss.sonatype.org/content/repositories/releases/"
+resolvers += "Sonatype releases" at "https://oss.sonatype.org/content/repositories/releases/"
 
-resolvers += "Sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
+resolvers += "Sonatype snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
 scalacOptions += "-feature"
 
