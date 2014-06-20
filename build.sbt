@@ -2,7 +2,7 @@ organization := "com.github.ethul"
 
 name := "redis-algebra"
 
-version := "0.1.0"
+version := "0.1.1"
 
 scalaVersion := "2.10.4"
 
@@ -11,8 +11,6 @@ libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.1.0-M7"
 libraryDependencies += "org.specs2" %% "specs2" % "2.2.2-scalaz-7.1.0-M3" % "test"
 
 resolvers += "Sonatype releases" at "https://oss.sonatype.org/content/repositories/releases/"
-
-resolvers += "Sonatype snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
 scalacOptions += "-feature"
 
@@ -43,6 +41,7 @@ credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
 pomIncludeRepository := Function.const(false)
 
 pomExtra :=
+  <url>https://github.com/ethul/redis-algebra</url>
   <licenses>
     <license>
       <name>MIT</name>
