@@ -4,11 +4,13 @@ name := "redis-algebra"
 
 version := "0.2.0-SNAPSHOT"
 
-scalaVersion := "2.10.4"
+scalaVersion := "2.11.1"
+
+crossScalaVersions := Seq("2.10.4", "2.11.1")
 
 libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.1.0-M7"
 
-libraryDependencies += "org.specs2" %% "specs2" % "2.2.2-scalaz-7.1.0-M3" % "test"
+libraryDependencies += "org.specs2" %% "specs2" % "2.3.13-scalaz-7.1.0-RC1" % "test"
 
 resolvers += "Sonatype releases" at "https://oss.sonatype.org/content/repositories/releases/"
 
@@ -25,8 +27,6 @@ scalacOptions += "-Xlint"
 scalacOptions += "-Xfatal-warnings"
 
 scalacOptions += "-Yno-adapted-args"
-
-scalacOptions += "-Ywarn-all"
 
 publishTo <<= version.apply { v =>
   val nexus = "https://oss.sonatype.org/"
