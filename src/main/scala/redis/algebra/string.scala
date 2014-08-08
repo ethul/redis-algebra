@@ -1,7 +1,7 @@
 package redis
 package algebra
 
-import scalaz.{\/, Free, Functor, Inject, InjectFunctions, NonEmptyList}, Free.Return
+import scalaz.{\/, Free, Functor, Inject, InjectFunctions, NonEmptyList}
 
 import data.{BitOperation, SetOption, Status}
 
@@ -84,72 +84,72 @@ trait StringInstances {
 
 trait StringFunctions extends InjectFunctions {
   def append[F[_]: Functor](key: ByteString, value: ByteString)(implicit I: Inject[StringAlgebra, F]): Free[F, Long] =
-    inject[F, StringAlgebra, Long](Append(key, value, Return(_)))
+    inject[F, StringAlgebra, Long](Append(key, value, Free.point(_)))
 
   def bitcount[F[_]: Functor](key: ByteString, range: Option[(Long, Long)])(implicit I: Inject[StringAlgebra, F]): Free[F, Long] =
-    inject[F, StringAlgebra, Long](Bitcount(key, range, Return(_)))
+    inject[F, StringAlgebra, Long](Bitcount(key, range, Free.point(_)))
 
   def bitop[F[_]: Functor](operation: BitOperation)(implicit I: Inject[StringAlgebra, F]): Free[F, Long] =
-    inject[F, StringAlgebra, Long](Bitop(operation, Return(_)))
+    inject[F, StringAlgebra, Long](Bitop(operation, Free.point(_)))
 
   def decr[F[_]: Functor](key: ByteString)(implicit I: Inject[StringAlgebra, F]): Free[F, Long] =
-    inject[F, StringAlgebra, Long](Decr(key, Return(_)))
+    inject[F, StringAlgebra, Long](Decr(key, Free.point(_)))
 
   def decrby[F[_]: Functor](key: ByteString, decrement: Long)(implicit I: Inject[StringAlgebra, F]): Free[F, Long] =
-    inject[F, StringAlgebra, Long](Decrby(key, decrement, Return(_)))
+    inject[F, StringAlgebra, Long](Decrby(key, decrement, Free.point(_)))
 
   def get[F[_]: Functor](key: ByteString)(implicit I: Inject[StringAlgebra, F]): Free[F, Option[ByteString]] =
-    inject[F, StringAlgebra, Option[ByteString]](Get(key, Return(_)))
+    inject[F, StringAlgebra, Option[ByteString]](Get(key, Free.point(_)))
 
   def getbit[F[_]: Functor](key: ByteString, offset: Long)(implicit I: Inject[StringAlgebra, F]): Free[F, Boolean] =
-    inject[F, StringAlgebra, Boolean](Getbit(key, offset, Return(_)))
+    inject[F, StringAlgebra, Boolean](Getbit(key, offset, Free.point(_)))
 
   def getrange[F[_]: Functor](key: ByteString, start: Long, end: Long)(implicit I: Inject[StringAlgebra, F]): Free[F, ByteString] =
-    inject[F, StringAlgebra, ByteString](Getrange(key, start, end, Return(_)))
+    inject[F, StringAlgebra, ByteString](Getrange(key, start, end, Free.point(_)))
 
   def getset[F[_]: Functor](key: ByteString, value: ByteString)(implicit I: Inject[StringAlgebra, F]): Free[F, Option[ByteString]] =
-    inject[F, StringAlgebra, Option[ByteString]](Getset(key, value, Return(_)))
+    inject[F, StringAlgebra, Option[ByteString]](Getset(key, value, Free.point(_)))
 
   def incr[F[_]: Functor](key: ByteString)(implicit I: Inject[StringAlgebra, F]): Free[F, Long] =
-    inject[F, StringAlgebra, Long](Incr(key, Return(_)))
+    inject[F, StringAlgebra, Long](Incr(key, Free.point(_)))
 
   def incrby[F[_]: Functor](key: ByteString, increment: Long)(implicit I: Inject[StringAlgebra, F]): Free[F, Long] =
-    inject[F, StringAlgebra, Long](Incrby(key, increment, Return(_)))
+    inject[F, StringAlgebra, Long](Incrby(key, increment, Free.point(_)))
 
   def incrbyfloat[F[_]: Functor](key: ByteString, increment: BigDecimal)(implicit I: Inject[StringAlgebra, F]): Free[F, BigDecimal] =
-    inject[F, StringAlgebra, BigDecimal](Incrbyfloat(key, increment, Return(_)))
+    inject[F, StringAlgebra, BigDecimal](Incrbyfloat(key, increment, Free.point(_)))
 
   def mget[F[_]: Functor](keys: NonEmptyList[ByteString])(implicit I: Inject[StringAlgebra, F]): Free[F, Seq[Option[ByteString]]] =
-    inject[F, StringAlgebra, Seq[Option[ByteString]]](Mget(keys, Return(_)))
+    inject[F, StringAlgebra, Seq[Option[ByteString]]](Mget(keys, Free.point(_)))
 
   def mset[F[_]: Functor](pairs: NonEmptyList[(ByteString, ByteString)])(implicit I: Inject[StringAlgebra, F]): Free[F, Status] =
-    inject[F, StringAlgebra, Status](Mset(pairs, Return(_)))
+    inject[F, StringAlgebra, Status](Mset(pairs, Free.point(_)))
 
   def msetnx[F[_]: Functor](pairs: NonEmptyList[(ByteString, ByteString)])(implicit I: Inject[StringAlgebra, F]): Free[F, Boolean] =
-    inject[F, StringAlgebra, Boolean](Msetnx(pairs, Return(_)))
+    inject[F, StringAlgebra, Boolean](Msetnx(pairs, Free.point(_)))
 
   def psetex[F[_]: Functor](key: ByteString, in: Milliseconds, value: ByteString)(implicit I: Inject[StringAlgebra, F]): Free[F, Status] =
-    inject[F, StringAlgebra, Status](Psetex(key, in, value, Return(_)))
+    inject[F, StringAlgebra, Status](Psetex(key, in, value, Free.point(_)))
 
   def set[F[_]: Functor](
     key: ByteString,
     value: ByteString,
     in: Option[Seconds \/ Milliseconds] = None,
     option: Option[SetOption] = None)(implicit I: Inject[StringAlgebra, F]): Free[F, Boolean] =
-    inject[F, StringAlgebra, Boolean](Set(key, value, in, option, Return(_)))
+    inject[F, StringAlgebra, Boolean](Set(key, value, in, option, Free.point(_)))
 
   def setbit[F[_]: Functor](key: ByteString, offset: Long, value: Boolean)(implicit I: Inject[StringAlgebra, F]): Free[F, Long] =
-    inject[F, StringAlgebra, Long](Setbit(key, offset, value, Return(_)))
+    inject[F, StringAlgebra, Long](Setbit(key, offset, value, Free.point(_)))
 
   def setex[F[_]: Functor](key: ByteString, in: Seconds, value: ByteString)(implicit I: Inject[StringAlgebra, F]): Free[F, Status] =
-    inject[F, StringAlgebra, Status](Setex(key, in, value, Return(_)))
+    inject[F, StringAlgebra, Status](Setex(key, in, value, Free.point(_)))
 
   def setnx[F[_]: Functor](key: ByteString, value: ByteString)(implicit I: Inject[StringAlgebra, F]): Free[F, Boolean] =
-    inject[F, StringAlgebra, Boolean](Setnx(key, value, Return(_)))
+    inject[F, StringAlgebra, Boolean](Setnx(key, value, Free.point(_)))
 
   def setrange[F[_]: Functor](key: ByteString, offset: Long, value: ByteString)(implicit I: Inject[StringAlgebra, F]): Free[F, Long] =
-    inject[F, StringAlgebra, Long](Setrange(key, offset, value, Return(_)))
+    inject[F, StringAlgebra, Long](Setrange(key, offset, value, Free.point(_)))
 
   def strlen[F[_]: Functor](key: ByteString)(implicit I: Inject[StringAlgebra, F]): Free[F, Long] =
-    inject[F, StringAlgebra, Long](Strlen(key, Return(_)))
+    inject[F, StringAlgebra, Long](Strlen(key, Free.point(_)))
 }

@@ -1,7 +1,7 @@
 package redis
 package algebra
 
-import scalaz.{Free, Functor, Inject, InjectFunctions, NonEmptyList}, Free.Return
+import scalaz.{Free, Functor, Inject, InjectFunctions, NonEmptyList}
 
 import data.Status
 
@@ -57,41 +57,41 @@ trait HashInstances {
 
 trait HashFunctions extends InjectFunctions {
   def hdel[F[_]: Functor](key: ByteString, fields: NonEmptyList[ByteString])(implicit I: Inject[HashAlgebra, F]): Free[F, Long] =
-    inject[F, HashAlgebra, Long](Hdel(key, fields, Return(_)))
+    inject[F, HashAlgebra, Long](Hdel(key, fields, Free.point(_)))
 
   def hexists[F[_]: Functor](key: ByteString, field: ByteString)(implicit I: Inject[HashAlgebra, F]): Free[F, Boolean] =
-    inject[F, HashAlgebra, Boolean](Hexists(key, field, Return(_)))
+    inject[F, HashAlgebra, Boolean](Hexists(key, field, Free.point(_)))
 
   def hget[F[_]: Functor](key: ByteString, field: ByteString)(implicit I: Inject[HashAlgebra, F]): Free[F, Option[ByteString]] =
-    inject[F, HashAlgebra, Option[ByteString]](Hget(key, field, Return(_)))
+    inject[F, HashAlgebra, Option[ByteString]](Hget(key, field, Free.point(_)))
 
   def hgetall[F[_]: Functor](key: ByteString)(implicit I: Inject[HashAlgebra, F]): Free[F, Seq[(ByteString, ByteString)]] =
-    inject[F, HashAlgebra, Seq[(ByteString, ByteString)]](Hgetall(key, Return(_)))
+    inject[F, HashAlgebra, Seq[(ByteString, ByteString)]](Hgetall(key, Free.point(_)))
 
   def hincrby[F[_]: Functor](key: ByteString, field: ByteString, increment: Long)(implicit I: Inject[HashAlgebra, F]): Free[F, Long] =
-    inject[F, HashAlgebra, Long](Hincrby(key, field, increment, Return(_)))
+    inject[F, HashAlgebra, Long](Hincrby(key, field, increment, Free.point(_)))
 
   def hincrbyfloat[F[_]: Functor](key: ByteString, field: ByteString, increment: BigDecimal)(implicit I: Inject[HashAlgebra, F]): Free[F, BigDecimal] =
-    inject[F, HashAlgebra, BigDecimal](Hincrbyfloat(key, field, increment, Return(_)))
+    inject[F, HashAlgebra, BigDecimal](Hincrbyfloat(key, field, increment, Free.point(_)))
 
   def hkeys[F[_]: Functor](key: ByteString)(implicit I: Inject[HashAlgebra, F]): Free[F, Seq[ByteString]] =
-    inject[F, HashAlgebra, Seq[ByteString]](Hkeys(key, Return(_)))
+    inject[F, HashAlgebra, Seq[ByteString]](Hkeys(key, Free.point(_)))
 
   def hlen[F[_]: Functor](key: ByteString)(implicit I: Inject[HashAlgebra, F]): Free[F, Long] =
-    inject[F, HashAlgebra, Long](Hlen(key, Return(_)))
+    inject[F, HashAlgebra, Long](Hlen(key, Free.point(_)))
 
   def hmget[F[_]: Functor](key: ByteString, fields: NonEmptyList[ByteString])(implicit I: Inject[HashAlgebra, F]): Free[F, Seq[Option[ByteString]]] =
-    inject[F, HashAlgebra, Seq[Option[ByteString]]](Hmget(key, fields, Return(_)))
+    inject[F, HashAlgebra, Seq[Option[ByteString]]](Hmget(key, fields, Free.point(_)))
 
   def hmset[F[_]: Functor](key: ByteString, pairs: NonEmptyList[(ByteString, ByteString)])(implicit I: Inject[HashAlgebra, F]): Free[F, Status] =
-    inject[F, HashAlgebra, Status](Hmset(key, pairs, Return(_)))
+    inject[F, HashAlgebra, Status](Hmset(key, pairs, Free.point(_)))
 
   def hset[F[_]: Functor](key: ByteString, field: ByteString, value: ByteString)(implicit I: Inject[HashAlgebra, F]): Free[F, Boolean] =
-    inject[F, HashAlgebra, Boolean](Hset(key, field, value, Return(_)))
+    inject[F, HashAlgebra, Boolean](Hset(key, field, value, Free.point(_)))
 
   def hsetnx[F[_]: Functor](key: ByteString, field: ByteString, value: ByteString)(implicit I: Inject[HashAlgebra, F]): Free[F, Boolean] =
-    inject[F, HashAlgebra, Boolean](Hsetnx(key, field, value, Return(_)))
+    inject[F, HashAlgebra, Boolean](Hsetnx(key, field, value, Free.point(_)))
 
   def hvals[F[_]: Functor](key: ByteString)(implicit I: Inject[HashAlgebra, F]): Free[F, Seq[ByteString]] =
-    inject[F, HashAlgebra, Seq[ByteString]](Hvals(key, Return(_)))
+    inject[F, HashAlgebra, Seq[ByteString]](Hvals(key, Free.point(_)))
 }

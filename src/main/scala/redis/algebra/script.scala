@@ -1,7 +1,7 @@
 package redis
 package algebra
 
-import scalaz.{\/, Free, Functor, Inject, InjectFunctions, NonEmptyList}, Free.Return
+import scalaz.{\/, Free, Functor, Inject, InjectFunctions, NonEmptyList}
 
 import data.{LuaResult, Status}
 
@@ -39,23 +39,23 @@ trait ScriptFunctions extends InjectFunctions {
     script: ByteString,
     keys: Seq[ByteString] = Nil,
     args: Seq[ByteString] = Nil)(implicit I: Inject[ScriptAlgebra, F]): Free[F, LuaResult] =
-    inject[F, ScriptAlgebra, LuaResult](Eval(script, keys, args, Return(_)))
+    inject[F, ScriptAlgebra, LuaResult](Eval(script, keys, args, Free.point(_)))
 
   def evalsha[F[_]: Functor](
     sha1: ByteString,
     keys: Seq[ByteString] = Nil,
     args: Seq[ByteString] = Nil)(implicit I: Inject[ScriptAlgebra, F]): Free[F, LuaResult] =
-    inject[F, ScriptAlgebra, LuaResult](Evalsha(sha1, keys, args, Return(_)))
+    inject[F, ScriptAlgebra, LuaResult](Evalsha(sha1, keys, args, Free.point(_)))
 
   def scriptexists[F[_]: Functor](scripts: NonEmptyList[ByteString])(implicit I: Inject[ScriptAlgebra, F]): Free[F, NonEmptyList[Boolean]] =
-    inject[F, ScriptAlgebra, NonEmptyList[Boolean]](Scriptexists(scripts, Return(_)))
+    inject[F, ScriptAlgebra, NonEmptyList[Boolean]](Scriptexists(scripts, Free.point(_)))
 
   def scriptflush[F[_]: Functor](implicit I: Inject[ScriptAlgebra, F]): Free[F, Status] =
-    inject[F, ScriptAlgebra, Status](Scriptflush(Return(_)))
+    inject[F, ScriptAlgebra, Status](Scriptflush(Free.point(_)))
 
   def scriptkill[F[_]: Functor](implicit I: Inject[ScriptAlgebra, F]): Free[F, Status] =
-    inject[F, ScriptAlgebra, Status](Scriptkill(Return(_)))
+    inject[F, ScriptAlgebra, Status](Scriptkill(Free.point(_)))
 
   def scriptload[F[_]: Functor](script: ByteString)(implicit I: Inject[ScriptAlgebra, F]): Free[F, Option[ByteString]] =
-    inject[F, ScriptAlgebra, Option[ByteString]](Scriptload(script, Return(_)))
+    inject[F, ScriptAlgebra, Option[ByteString]](Scriptload(script, Free.point(_)))
 }
