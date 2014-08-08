@@ -1,7 +1,7 @@
 package redis
 package algebra
 
-import scalaz.{Free, Functor, Inject, InjectFunctions}, Free.Return
+import scalaz.{Free, Functor, Inject, InjectFunctions}
 
 import data.{Master, SlowlogResult, SlowlogSubcommand, Status}
 
@@ -90,74 +90,74 @@ trait ServerInstances {
 
 trait ServerFunctions extends InjectFunctions {
   def bgrewriteaof[F[_]: Functor](implicit I: Inject[ServerAlgebra, F]): Free[F, Status] =
-    inject[F, ServerAlgebra, Status](Bgrewriteaof(Return(_)))
+    inject[F, ServerAlgebra, Status](Bgrewriteaof(Free.point(_)))
 
   def bgsave[F[_]: Functor](implicit I: Inject[ServerAlgebra, F]): Free[F, Status] =
-    inject[F, ServerAlgebra, Status](Bgsave(Return(_)))
+    inject[F, ServerAlgebra, Status](Bgsave(Free.point(_)))
 
   def clientgetname[F[_]: Functor](implicit I: Inject[ServerAlgebra, F]): Free[F, Option[ByteString]] =
-    inject[F, ServerAlgebra, Option[ByteString]](Clientgetname(Return(_)))
+    inject[F, ServerAlgebra, Option[ByteString]](Clientgetname(Free.point(_)))
 
   def clientkill[F[_]: Functor](ip: ByteString, port: Int)(implicit I: Inject[ServerAlgebra, F]): Free[F, Status] =
-    inject[F, ServerAlgebra, Status](Clientkill(ip, port, Return(_)))
+    inject[F, ServerAlgebra, Status](Clientkill(ip, port, Free.point(_)))
 
   def clientlist[F[_]: Functor](implicit I: Inject[ServerAlgebra, F]): Free[F, Seq[ByteString]] =
-    inject[F, ServerAlgebra, Seq[ByteString]](Clientlist(Return(_)))
+    inject[F, ServerAlgebra, Seq[ByteString]](Clientlist(Free.point(_)))
 
   def clientsetname[F[_]: Functor](name: ByteString)(implicit I: Inject[ServerAlgebra, F]): Free[F, Status] =
-    inject[F, ServerAlgebra, Status](Clientsetname(name, Return(_)))
+    inject[F, ServerAlgebra, Status](Clientsetname(name, Free.point(_)))
 
   def configget[F[_]: Functor](parameter: ByteString)(implicit I: Inject[ServerAlgebra, F]): Free[F, Seq[ByteString]] =
-    inject[F, ServerAlgebra, Seq[ByteString]](Configget(parameter, Return(_)))
+    inject[F, ServerAlgebra, Seq[ByteString]](Configget(parameter, Free.point(_)))
 
   def configresetstat[F[_]: Functor](implicit I: Inject[ServerAlgebra, F]): Free[F, Status] =
-    inject[F, ServerAlgebra, Status](Configresetstat(Return(_)))
+    inject[F, ServerAlgebra, Status](Configresetstat(Free.point(_)))
 
   def configrewrite[F[_]: Functor](implicit I: Inject[ServerAlgebra, F]): Free[F, Status] =
-    inject[F, ServerAlgebra, Status](Configrewrite(Return(_)))
+    inject[F, ServerAlgebra, Status](Configrewrite(Free.point(_)))
 
   def configset[F[_]: Functor](parameter: ByteString, value: ByteString)(implicit I: Inject[ServerAlgebra, F]): Free[F, Status] =
-    inject[F, ServerAlgebra, Status](Configset(parameter, value, Return(_)))
+    inject[F, ServerAlgebra, Status](Configset(parameter, value, Free.point(_)))
 
   def dbsize[F[_]: Functor](implicit I: Inject[ServerAlgebra, F]): Free[F, Short] =
-    inject[F, ServerAlgebra, Short](Dbsize(Return(_)))
+    inject[F, ServerAlgebra, Short](Dbsize(Free.point(_)))
 
   def debugobject[F[_]: Functor](key: ByteString)(implicit I: Inject[ServerAlgebra, F]): Free[F, Status] =
-    inject[F, ServerAlgebra, Status](Debugobject(key, Return(_)))
+    inject[F, ServerAlgebra, Status](Debugobject(key, Free.point(_)))
 
   def debugsegfault[F[_]: Functor](implicit I: Inject[ServerAlgebra, F]): Free[F, Status] =
-    inject[F, ServerAlgebra, Status](Debugsegfault(Return(_)))
+    inject[F, ServerAlgebra, Status](Debugsegfault(Free.point(_)))
 
   def flushall[F[_]: Functor](implicit I: Inject[ServerAlgebra, F]): Free[F, Status] =
-    inject[F, ServerAlgebra, Status](Flushall(Return(_)))
+    inject[F, ServerAlgebra, Status](Flushall(Free.point(_)))
 
   def flushdb[F[_]: Functor](implicit I: Inject[ServerAlgebra, F]): Free[F, Status] =
-    inject[F, ServerAlgebra, Status](Flushdb(Return(_)))
+    inject[F, ServerAlgebra, Status](Flushdb(Free.point(_)))
 
   def info[F[_]: Functor](section: Option[ByteString] = None)(implicit I: Inject[ServerAlgebra, F]): Free[F, ByteString] =
-    inject[F, ServerAlgebra, ByteString](Info(section, Return(_)))
+    inject[F, ServerAlgebra, ByteString](Info(section, Free.point(_)))
 
   def lastsave[F[_]: Functor](implicit I: Inject[ServerAlgebra, F]): Free[F, Seconds] =
-    inject[F, ServerAlgebra, Seconds](Lastsave(Return(_)))
+    inject[F, ServerAlgebra, Seconds](Lastsave(Free.point(_)))
 
   def monitor[F[_]: Functor](implicit I: Inject[ServerAlgebra, F]): Free[F, Stream[ByteString]] =
-    inject[F, ServerAlgebra, Stream[ByteString]](Monitor(Return(_)))
+    inject[F, ServerAlgebra, Stream[ByteString]](Monitor(Free.point(_)))
 
   def save[F[_]: Functor](implicit I: Inject[ServerAlgebra, F]): Free[F, Status] =
-    inject[F, ServerAlgebra, Status](Save(Return(_)))
+    inject[F, ServerAlgebra, Status](Save(Free.point(_)))
 
   def shutdown[F[_]: Functor](save: Option[Boolean] = None)(implicit I: Inject[ServerAlgebra, F]): Free[F, Status] =
-    inject[F, ServerAlgebra, Status](Shutdown(save, Return(_)))
+    inject[F, ServerAlgebra, Status](Shutdown(save, Free.point(_)))
 
   def slaveof[F[_]: Functor](master: Master)(implicit I: Inject[ServerAlgebra, F]): Free[F, Status] =
-    inject[F, ServerAlgebra, Status](Slaveof(master, Return(_)))
+    inject[F, ServerAlgebra, Status](Slaveof(master, Free.point(_)))
 
   def slowlog[F[_]: Functor](subcommand: SlowlogSubcommand)(implicit I: Inject[ServerAlgebra, F]): Free[F, SlowlogResult] =
-    inject[F, ServerAlgebra, SlowlogResult](Slowlog(subcommand, Return(_)))
+    inject[F, ServerAlgebra, SlowlogResult](Slowlog(subcommand, Free.point(_)))
 
   def sync[F[_]: Functor](implicit I: Inject[ServerAlgebra, F]): Free[F, Unit] =
-    inject[F, ServerAlgebra, Unit](Sync(Return(())))
+    inject[F, ServerAlgebra, Unit](Sync(Free.point(())))
 
   def time[F[_]: Functor](implicit I: Inject[ServerAlgebra, F]): Free[F, (Seconds, Microseconds)] =
-    inject[F, ServerAlgebra, (Seconds, Microseconds)](Time(Return(_)))
+    inject[F, ServerAlgebra, (Seconds, Microseconds)](Time(Free.point(_)))
 }

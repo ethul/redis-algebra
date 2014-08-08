@@ -1,7 +1,7 @@
 package redis
 package algebra
 
-import scalaz.{Free, Functor, Inject, InjectFunctions}, Free.Return
+import scalaz.{Free, Functor, Inject, InjectFunctions}
 
 import data.Status
 
@@ -33,17 +33,17 @@ trait ConnectionInstances {
 
 trait ConnectionFunctions extends InjectFunctions {
   def auth[F[_]: Functor](password: ByteString)(implicit I: Inject[ConnectionAlgebra, F]): Free[F, Status] =
-    inject[F, ConnectionAlgebra, Status](Auth(password, Return(_)))
+    inject[F, ConnectionAlgebra, Status](Auth(password, Free.point(_)))
 
   def echo[F[_]: Functor](message: ByteString)(implicit I: Inject[ConnectionAlgebra, F]): Free[F, ByteString] =
-    inject[F, ConnectionAlgebra, ByteString](Echo(message, Return(_)))
+    inject[F, ConnectionAlgebra, ByteString](Echo(message, Free.point(_)))
 
   def ping[F[_]: Functor](implicit I: Inject[ConnectionAlgebra, F]): Free[F, Status] =
-    inject[F, ConnectionAlgebra, Status](Ping(Return(_)))
+    inject[F, ConnectionAlgebra, Status](Ping(Free.point(_)))
 
   def quit[F[_]: Functor](implicit I: Inject[ConnectionAlgebra, F]): Free[F, Status] =
-    inject[F, ConnectionAlgebra, Status](Quit(Return(_)))
+    inject[F, ConnectionAlgebra, Status](Quit(Free.point(_)))
 
   def select[F[_]: Functor](index: Short)(implicit I: Inject[ConnectionAlgebra, F]): Free[F, Status] =
-    inject[F, ConnectionAlgebra, Status](Select(index, Return(_)))
+    inject[F, ConnectionAlgebra, Status](Select(index, Free.point(_)))
 }
