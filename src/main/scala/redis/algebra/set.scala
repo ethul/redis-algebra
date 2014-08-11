@@ -3,7 +3,7 @@ package algebra
 
 import scala.collection.immutable.{Set => ScalaSet}
 
-import scalaz.{Free, Functor, Inject, InjectFunctions, NonEmptyList}, Free.Return
+import scalaz.{Free, Functor, Inject, InjectFunctions, NonEmptyList}
 
 sealed abstract class SetAlgebra[A]
 
@@ -60,44 +60,44 @@ trait SetInstances {
 
 trait SetFunctions extends InjectFunctions {
   def sadd[F[_]: Functor](key: ByteString, members: NonEmptyList[ByteString])(implicit I: Inject[SetAlgebra, F]): Free[F, Long] =
-    inject[F, SetAlgebra, Long](Sadd(key, members, Return(_)))
+    inject[F, SetAlgebra, Long](Sadd(key, members, Free.point(_)))
 
   def scard[F[_]: Functor](key: ByteString)(implicit I: Inject[SetAlgebra, F]): Free[F, Long] =
-    inject[F, SetAlgebra, Long](Scard(key, Return(_)))
+    inject[F, SetAlgebra, Long](Scard(key, Free.point(_)))
 
   def sdiff[F[_]: Functor](keys: NonEmptyList[ByteString])(implicit I: Inject[SetAlgebra, F]): Free[F, ScalaSet[ByteString]] =
-    inject[F, SetAlgebra, ScalaSet[ByteString]](Sdiff(keys, Return(_)))
+    inject[F, SetAlgebra, ScalaSet[ByteString]](Sdiff(keys, Free.point(_)))
 
   def sdiffstore[F[_]: Functor](destination: ByteString, keys: NonEmptyList[ByteString])(implicit I: Inject[SetAlgebra, F]): Free[F, Long] =
-    inject[F, SetAlgebra, Long](Sdiffstore(destination, keys, Return(_)))
+    inject[F, SetAlgebra, Long](Sdiffstore(destination, keys, Free.point(_)))
 
   def sinter[F[_]: Functor](keys: NonEmptyList[ByteString])(implicit I: Inject[SetAlgebra, F]): Free[F, ScalaSet[ByteString]] =
-    inject[F, SetAlgebra, ScalaSet[ByteString]](Sinter(keys, Return(_)))
+    inject[F, SetAlgebra, ScalaSet[ByteString]](Sinter(keys, Free.point(_)))
 
   def sinterstore[F[_]: Functor](destination: ByteString, keys: NonEmptyList[ByteString])(implicit I: Inject[SetAlgebra, F]): Free[F, Long] =
-    inject[F, SetAlgebra, Long](Sinterstore(destination, keys, Return(_)))
+    inject[F, SetAlgebra, Long](Sinterstore(destination, keys, Free.point(_)))
 
   def sismember[F[_]: Functor](key: ByteString, member: ByteString)(implicit I: Inject[SetAlgebra, F]): Free[F, Boolean] =
-    inject[F, SetAlgebra, Boolean](Sismember(key, member, Return(_)))
+    inject[F, SetAlgebra, Boolean](Sismember(key, member, Free.point(_)))
 
   def smembers[F[_]: Functor](key: ByteString)(implicit I: Inject[SetAlgebra, F]): Free[F, ScalaSet[ByteString]] =
-    inject[F, SetAlgebra, ScalaSet[ByteString]](Smembers(key, Return(_)))
+    inject[F, SetAlgebra, ScalaSet[ByteString]](Smembers(key, Free.point(_)))
 
   def smove[F[_]: Functor](source: ByteString, destination: ByteString, member: ByteString)(implicit I: Inject[SetAlgebra, F]): Free[F, Boolean] =
-    inject[F, SetAlgebra, Boolean](Smove(source, destination, member, Return(_)))
+    inject[F, SetAlgebra, Boolean](Smove(source, destination, member, Free.point(_)))
 
   def spop[F[_]: Functor](key: ByteString)(implicit I: Inject[SetAlgebra, F]): Free[F, Option[ByteString]] =
-    inject[F, SetAlgebra, Option[ByteString]](Spop(key, Return(_)))
+    inject[F, SetAlgebra, Option[ByteString]](Spop(key, Free.point(_)))
 
   def srandmember[F[_]: Functor](key: ByteString, count: Option[Long] = None)(implicit I: Inject[SetAlgebra, F]): Free[F, ScalaSet[ByteString]] =
-    inject[F, SetAlgebra, ScalaSet[ByteString]](Srandmember(key, count, Return(_)))
+    inject[F, SetAlgebra, ScalaSet[ByteString]](Srandmember(key, count, Free.point(_)))
 
   def srem[F[_]: Functor](key: ByteString, members: NonEmptyList[ByteString])(implicit I: Inject[SetAlgebra, F]): Free[F, Long] =
-    inject[F, SetAlgebra, Long](Srem(key, members, Return(_)))
+    inject[F, SetAlgebra, Long](Srem(key, members, Free.point(_)))
 
   def sunion[F[_]: Functor](keys: NonEmptyList[ByteString])(implicit I: Inject[SetAlgebra, F]): Free[F, ScalaSet[ByteString]] =
-    inject[F, SetAlgebra, ScalaSet[ByteString]](Sunion(keys, Return(_)))
+    inject[F, SetAlgebra, ScalaSet[ByteString]](Sunion(keys, Free.point(_)))
 
   def sunionstore[F[_]: Functor](destination: ByteString, keys: NonEmptyList[ByteString])(implicit I: Inject[SetAlgebra, F]): Free[F, Long] =
-    inject[F, SetAlgebra, Long](Sunionstore(destination, keys, Return(_)))
+    inject[F, SetAlgebra, Long](Sunionstore(destination, keys, Free.point(_)))
 }

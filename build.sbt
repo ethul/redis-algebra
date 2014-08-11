@@ -2,31 +2,40 @@ organization := "com.github.ethul"
 
 name := "redis-algebra"
 
-version := "0.1.1"
+version := "0.1.2"
 
-scalaVersion := "2.10.4"
+scalaVersion := "2.11.2"
 
-libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.1.0-M7"
+crossScalaVersions := Seq("2.10.4", "2.11.2")
 
-libraryDependencies += "org.specs2" %% "specs2" % "2.2.2-scalaz-7.1.0-M3" % "test"
+libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.1.0"
+
+libraryDependencies += "org.specs2" %% "specs2" % "2.4" % "test"
 
 resolvers += "Sonatype releases" at "https://oss.sonatype.org/content/repositories/releases/"
 
-scalacOptions += "-feature"
-
-scalacOptions += "-deprecation"
-
-scalacOptions += "-unchecked"
-
-scalacOptions += "-language:higherKinds"
-
-scalacOptions += "-Xlint"
-
-scalacOptions += "-Xfatal-warnings"
-
-scalacOptions += "-Yno-adapted-args"
-
-scalacOptions += "-Ywarn-all"
+scalacOptions ++= Seq(
+  "-deprecation",
+  "-encoding", "UTF-8",
+  "-feature",
+  "-language:higherKinds",
+  "-language:implicitConversions",
+  "-language:postfixOps",
+  "-unchecked",
+  "-Xfatal-warnings",
+  "-Xlint:_",
+  "-Yno-adapted-args",
+  "-Ywarn-adapted-args",
+  "-Ywarn-dead-code",
+  "-Ywarn-inaccessible",
+  "-Ywarn-infer-any",
+  "-Ywarn-nullary-override",
+  "-Ywarn-nullary-unit",
+  "-Ywarn-numeric-widen",
+  "-Ywarn-unused",
+  "-Ywarn-unused-import",
+  "-Ywarn-value-discard"
+)
 
 publishTo <<= version.apply { v =>
   val nexus = "https://oss.sonatype.org/"

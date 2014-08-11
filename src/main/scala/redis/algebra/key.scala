@@ -1,7 +1,7 @@
 package redis
 package algebra
 
-import scalaz.{\/, Free, Functor, Inject, InjectFunctions, NonEmptyList}, Free.Return
+import scalaz.{\/, Free, Functor, Inject, InjectFunctions, NonEmptyList}
 
 import data.{Asc, By, Limit, ObjectSubcommand, ObjectResult, Order, Type => DataType, Status}
 
@@ -78,22 +78,22 @@ trait KeyInstances {
 
 trait KeyFunctions extends InjectFunctions {
   def del[F[_]: Functor](keys: NonEmptyList[ByteString])(implicit I: Inject[KeyAlgebra, F]): Free[F, Long] =
-    inject[F, KeyAlgebra, Long](Del(keys, Return(_)))
+    inject[F, KeyAlgebra, Long](Del(keys, Free.point(_)))
 
   def dump[F[_]: Functor](key: ByteString)(implicit I: Inject[KeyAlgebra, F]): Free[F, Option[ByteString]] =
-    inject[F, KeyAlgebra, Option[ByteString]](Dump(key, Return(_)))
+    inject[F, KeyAlgebra, Option[ByteString]](Dump(key, Free.point(_)))
 
   def exists[F[_]: Functor](key: ByteString)(implicit I: Inject[KeyAlgebra, F]): Free[F, Boolean] =
-    inject[F, KeyAlgebra, Boolean](Exists(key, Return(_)))
+    inject[F, KeyAlgebra, Boolean](Exists(key, Free.point(_)))
 
   def expire[F[_]: Functor](key: ByteString, in: Seconds)(implicit I: Inject[KeyAlgebra, F]): Free[F, Boolean] =
-    inject[F, KeyAlgebra, Boolean](Expire(key, in, Return(_)))
+    inject[F, KeyAlgebra, Boolean](Expire(key, in, Free.point(_)))
 
   def expireat[F[_]: Functor](key: ByteString, at: Seconds)(implicit I: Inject[KeyAlgebra, F]): Free[F, Boolean] =
-    inject[F, KeyAlgebra, Boolean](Expireat(key, at, Return(_)))
+    inject[F, KeyAlgebra, Boolean](Expireat(key, at, Free.point(_)))
 
   def keys[F[_]: Functor](pattern: ByteString)(implicit I: Inject[KeyAlgebra, F]): Free[F, Seq[ByteString]] =
-    inject[F, KeyAlgebra, Seq[ByteString]](Keys(pattern, Return(_)))
+    inject[F, KeyAlgebra, Seq[ByteString]](Keys(pattern, Free.point(_)))
 
   def migrate[F[_]: Functor](
     host: ByteString,
@@ -103,37 +103,37 @@ trait KeyFunctions extends InjectFunctions {
     destination: Short,
     copy: Boolean = false,
     replace: Boolean = false)(implicit I: Inject[KeyAlgebra, F]): Free[F, Status] =
-    inject[F, KeyAlgebra, Status](Migrate(host, port, key, timeout, destination, copy, replace, Return(_)))
+    inject[F, KeyAlgebra, Status](Migrate(host, port, key, timeout, destination, copy, replace, Free.point(_)))
 
   def move[F[_]: Functor](key: ByteString, db: Short)(implicit I: Inject[KeyAlgebra, F]): Free[F, Boolean] =
-    inject[F, KeyAlgebra, Boolean](Move(key, db, Return(_)))
+    inject[F, KeyAlgebra, Boolean](Move(key, db, Free.point(_)))
 
   def `object`[F[_]: Functor](subcommand: ObjectSubcommand)(implicit I: Inject[KeyAlgebra, F]): Free[F, Option[ObjectResult]] =
-    inject[F, KeyAlgebra, Option[ObjectResult]](Object(subcommand, Return(_)))
+    inject[F, KeyAlgebra, Option[ObjectResult]](Object(subcommand, Free.point(_)))
 
   def persist[F[_]: Functor](key: ByteString)(implicit I: Inject[KeyAlgebra, F]): Free[F, Boolean] =
-    inject[F, KeyAlgebra, Boolean](Persist(key, Return(_)))
+    inject[F, KeyAlgebra, Boolean](Persist(key, Free.point(_)))
 
   def pexpire[F[_]: Functor](key: ByteString, in: Milliseconds)(implicit I: Inject[KeyAlgebra, F]): Free[F, Boolean] =
-    inject[F, KeyAlgebra, Boolean](Pexpire(key, in, Return(_)))
+    inject[F, KeyAlgebra, Boolean](Pexpire(key, in, Free.point(_)))
 
   def pexpireat[F[_]: Functor](key: ByteString, at: Milliseconds)(implicit I: Inject[KeyAlgebra, F]): Free[F, Boolean] =
-    inject[F, KeyAlgebra, Boolean](Pexpireat(key, at, Return(_)))
+    inject[F, KeyAlgebra, Boolean](Pexpireat(key, at, Free.point(_)))
 
   def pttl[F[_]: Functor](key: ByteString)(implicit I: Inject[KeyAlgebra, F]): Free[F, Option[Milliseconds]] =
-    inject[F, KeyAlgebra, Option[Milliseconds]](Pttl(key, Return(_)))
+    inject[F, KeyAlgebra, Option[Milliseconds]](Pttl(key, Free.point(_)))
 
   def randomkey[F[_]: Functor](implicit I: Inject[KeyAlgebra, F]): Free[F, Option[ByteString]] =
-    inject[F, KeyAlgebra, Option[ByteString]](Randomkey(Return(_)))
+    inject[F, KeyAlgebra, Option[ByteString]](Randomkey(Free.point(_)))
 
   def rename[F[_]: Functor](key: ByteString, name: ByteString)(implicit I: Inject[KeyAlgebra, F]): Free[F, Status] =
-    inject[F, KeyAlgebra, Status](Rename(key, name, Return(_)))
+    inject[F, KeyAlgebra, Status](Rename(key, name, Free.point(_)))
 
   def renamenx[F[_]: Functor](key: ByteString, name: ByteString)(implicit I: Inject[KeyAlgebra, F]): Free[F, Boolean] =
-    inject[F, KeyAlgebra, Boolean](Renamenx(key, name, Return(_)))
+    inject[F, KeyAlgebra, Boolean](Renamenx(key, name, Free.point(_)))
 
   def restore[F[_]: Functor](key: ByteString, value: ByteString, ttl: Option[Milliseconds] = None)(implicit I: Inject[KeyAlgebra, F]): Free[F, Status] =
-    inject[F, KeyAlgebra, Status](Restore(key, ttl, value, Return(_)))
+    inject[F, KeyAlgebra, Status](Restore(key, ttl, value, Free.point(_)))
 
   def sort[F[_]: Functor](
     key: ByteString,
@@ -143,11 +143,11 @@ trait KeyFunctions extends InjectFunctions {
     order: Order = Asc,
     alpha: Boolean = false,
     store: Option[ByteString] = None)(implicit I: Inject[KeyAlgebra, F]): Free[F, Seq[ByteString] \/ Long] =
-    inject[F, KeyAlgebra, Seq[ByteString] \/ Long](Sort(key, by, limit, get, order, alpha, store, Return(_)))
+    inject[F, KeyAlgebra, Seq[ByteString] \/ Long](Sort(key, by, limit, get, order, alpha, store, Free.point(_)))
 
   def ttl[F[_]: Functor](key: ByteString)(implicit I: Inject[KeyAlgebra, F]): Free[F, Option[Seconds]] =
-    inject[F, KeyAlgebra, Option[Seconds]](Ttl(key, Return(_)))
+    inject[F, KeyAlgebra, Option[Seconds]](Ttl(key, Free.point(_)))
 
   def `type`[F[_]: Functor](key: ByteString)(implicit I: Inject[KeyAlgebra, F]): Free[F, Option[DataType]] =
-    inject[F, KeyAlgebra, Option[DataType]](Type(key, Return(_)))
+    inject[F, KeyAlgebra, Option[DataType]](Type(key, Free.point(_)))
 }

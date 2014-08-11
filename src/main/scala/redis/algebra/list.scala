@@ -1,7 +1,7 @@
 package redis
 package algebra
 
-import scalaz.{Free, Functor, Inject, InjectFunctions, NonEmptyList}, Free.Return
+import scalaz.{Free, Functor, Inject, InjectFunctions, NonEmptyList}
 
 import data.{Asc, Position, Status}
 
@@ -69,53 +69,53 @@ trait ListInstances {
 
 trait ListFunctions extends InjectFunctions {
   def blpop[F[_]: Functor](keys: NonEmptyList[ByteString], timeout: Seconds)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[(ByteString, ByteString)]] =
-    inject[F, ListAlgebra, Option[(ByteString, ByteString)]](Blpop(keys, timeout, Return(_)))
+    inject[F, ListAlgebra, Option[(ByteString, ByteString)]](Blpop(keys, timeout, Free.point(_)))
 
   def brpop[F[_]: Functor](keys: NonEmptyList[ByteString], timeout: Seconds)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[(ByteString, ByteString)]] =
-    inject[F, ListAlgebra, Option[(ByteString, ByteString)]](Brpop(keys, timeout, Return(_)))
+    inject[F, ListAlgebra, Option[(ByteString, ByteString)]](Brpop(keys, timeout, Free.point(_)))
 
   def brpoplpush[F[_]: Functor](source: ByteString, destination: ByteString, timeout: Seconds)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[ByteString]] =
-    inject[F, ListAlgebra, Option[ByteString]](Brpoplpush(source, destination, timeout, Return(_)))
+    inject[F, ListAlgebra, Option[ByteString]](Brpoplpush(source, destination, timeout, Free.point(_)))
 
   def lindex[F[_]: Functor](key: ByteString, index: Long)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[ByteString]] =
-    inject[F, ListAlgebra, Option[ByteString]](Lindex(key, index, Return(_)))
+    inject[F, ListAlgebra, Option[ByteString]](Lindex(key, index, Free.point(_)))
 
   def linsert[F[_]: Functor](key: ByteString, position: Position, pivot: ByteString, value: ByteString)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[Long]] =
-    inject[F, ListAlgebra, Option[Long]](Linsert(key, position, pivot, value, Return(_)))
+    inject[F, ListAlgebra, Option[Long]](Linsert(key, position, pivot, value, Free.point(_)))
 
   def llen[F[_]: Functor](key: ByteString)(implicit I: Inject[ListAlgebra, F]): Free[F, Long] =
-    inject[F, ListAlgebra, Long](Llen(key, Return(_)))
+    inject[F, ListAlgebra, Long](Llen(key, Free.point(_)))
 
   def lpop[F[_]: Functor](key: ByteString)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[ByteString]] =
-    inject[F, ListAlgebra, Option[ByteString]](Lpop(key, Return(_)))
+    inject[F, ListAlgebra, Option[ByteString]](Lpop(key, Free.point(_)))
 
   def lpush[F[_]: Functor](key: ByteString, values: NonEmptyList[ByteString])(implicit I: Inject[ListAlgebra, F]): Free[F, Long] =
-    inject[F, ListAlgebra, Long](Lpush(key, values, Return(_)))
+    inject[F, ListAlgebra, Long](Lpush(key, values, Free.point(_)))
 
   def lpushx[F[_]: Functor](key: ByteString, value: ByteString)(implicit I: Inject[ListAlgebra, F]): Free[F, Long] =
-    inject[F, ListAlgebra, Long](Lpushx(key, value, Return(_)))
+    inject[F, ListAlgebra, Long](Lpushx(key, value, Free.point(_)))
 
   def lrange[F[_]: Functor](key: ByteString, start: Long, stop: Long)(implicit I: Inject[ListAlgebra, F]): Free[F, Seq[ByteString]] =
-    inject[F, ListAlgebra, Seq[ByteString]](Lrange(key, start, stop, Return(_)))
+    inject[F, ListAlgebra, Seq[ByteString]](Lrange(key, start, stop, Free.point(_)))
 
   def lrem[F[_]: Functor](key: ByteString, count: Long, value: ByteString)(implicit I: Inject[ListAlgebra, F]): Free[F, Long] =
-    inject[F, ListAlgebra, Long](Lrem(key, count, value, Return(_)))
+    inject[F, ListAlgebra, Long](Lrem(key, count, value, Free.point(_)))
 
   def lset[F[_]: Functor](key: ByteString, index: Long, value: ByteString)(implicit I: Inject[ListAlgebra, F]): Free[F, Status] =
-    inject[F, ListAlgebra, Status](Lset(key, index, value, Return(_)))
+    inject[F, ListAlgebra, Status](Lset(key, index, value, Free.point(_)))
 
   def ltrim[F[_]: Functor](key: ByteString, start: Long, stop: Long)(implicit I: Inject[ListAlgebra, F]): Free[F, Status] =
-    inject[F, ListAlgebra, Status](Ltrim(key, start, stop, Return(_)))
+    inject[F, ListAlgebra, Status](Ltrim(key, start, stop, Free.point(_)))
 
   def rpop[F[_]: Functor](key: ByteString)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[ByteString]] =
-    inject[F, ListAlgebra, Option[ByteString]](Rpop(key, Return(_)))
+    inject[F, ListAlgebra, Option[ByteString]](Rpop(key, Free.point(_)))
 
   def rpoplpush[F[_]: Functor](source: ByteString, destination: ByteString)(implicit I: Inject[ListAlgebra, F]): Free[F, Option[ByteString]] =
-    inject[F, ListAlgebra, Option[ByteString]](Rpoplpush(source, destination, Return(_)))
+    inject[F, ListAlgebra, Option[ByteString]](Rpoplpush(source, destination, Free.point(_)))
 
   def rpush[F[_]: Functor](key: ByteString, values: NonEmptyList[ByteString])(implicit I: Inject[ListAlgebra, F]): Free[F, Long] =
-    inject[F, ListAlgebra, Long](Rpush(key, values, Return(_)))
+    inject[F, ListAlgebra, Long](Rpush(key, values, Free.point(_)))
 
   def rpushx[F[_]: Functor](key: ByteString, value: ByteString)(implicit I: Inject[ListAlgebra, F]): Free[F, Long] =
-    inject[F, ListAlgebra, Long](Rpushx(key, value, Return(_)))
+    inject[F, ListAlgebra, Long](Rpushx(key, value, Free.point(_)))
 }

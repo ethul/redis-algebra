@@ -1,7 +1,7 @@
 package redis
 package algebra
 
-import scalaz.{Free, Functor, Inject, InjectFunctions, NonEmptyList}, Free.Return
+import scalaz.{Free, Functor, Inject, InjectFunctions, NonEmptyList}
 
 import data.{Aggregate, Endpoint, Limit, Sum}
 
@@ -66,30 +66,30 @@ trait ZSetInstances {
 
 trait ZSetFunctions extends InjectFunctions {
   def zadd[F[_]: Functor](key: ByteString, pairs: NonEmptyList[(Double, ByteString)])(implicit I: Inject[ZSetAlgebra, F]): Free[F, Long] =
-    inject[F, ZSetAlgebra, Long](Zadd(key, pairs, Return(_)))
+    inject[F, ZSetAlgebra, Long](Zadd(key, pairs, Free.point(_)))
 
   def zcard[F[_]: Functor](key: ByteString)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Long] =
-    inject[F, ZSetAlgebra, Long](Zcard(key, Return(_)))
+    inject[F, ZSetAlgebra, Long](Zcard(key, Free.point(_)))
 
   def zcount[F[_]: Functor](key: ByteString, min: Endpoint, max: Endpoint)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Long] =
-    inject[F, ZSetAlgebra, Long](Zcount(key, min, max, Return(_)))
+    inject[F, ZSetAlgebra, Long](Zcount(key, min, max, Free.point(_)))
 
   def zincrby[F[_]: Functor](key: ByteString, increment: Double, member: ByteString)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Double] =
-    inject[F, ZSetAlgebra, Double](Zincrby(key, increment, member, Return(_)))
+    inject[F, ZSetAlgebra, Double](Zincrby(key, increment, member, Free.point(_)))
 
   def zinterstore[F[_]: Functor](
     destination: ByteString,
     keys: NonEmptyList[ByteString],
     weights: Option[NonEmptyList[Double]] = None,
-    aggregate: Aggregate = Sum)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Double] =
-    inject[F, ZSetAlgebra, Double](Zinterstore(destination, keys, weights, aggregate, Return(_)))
+    aggregate: Aggregate = Sum)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Long] =
+    inject[F, ZSetAlgebra, Long](Zinterstore(destination, keys, weights, aggregate, Free.point(_)))
 
   def zrange[F[_]: Functor](
     key: ByteString,
     start: Long,
     stop: Long,
     withScores: Boolean = false)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Seq[(ByteString, Option[Double])]] =
-    inject[F, ZSetAlgebra, Seq[(ByteString, Option[Double])]](Zrange(key, start, stop, withScores, Return(_)))
+    inject[F, ZSetAlgebra, Seq[(ByteString, Option[Double])]](Zrange(key, start, stop, withScores, Free.point(_)))
 
   def zrangebyscore[F[_]: Functor](
     key: ByteString,
@@ -97,26 +97,26 @@ trait ZSetFunctions extends InjectFunctions {
     max: Endpoint,
     withScores: Boolean = false,
     limit: Option[Limit] = None)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Seq[(ByteString, Option[Double])]] =
-    inject[F, ZSetAlgebra, Seq[(ByteString, Option[Double])]](Zrangebyscore(key, min, max, withScores, limit, Return(_)))
+    inject[F, ZSetAlgebra, Seq[(ByteString, Option[Double])]](Zrangebyscore(key, min, max, withScores, limit, Free.point(_)))
 
   def zrank[F[_]: Functor](key: ByteString, member: ByteString)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Option[Long]] =
-    inject[F, ZSetAlgebra, Option[Long]](Zrank(key, member, Return(_)))
+    inject[F, ZSetAlgebra, Option[Long]](Zrank(key, member, Free.point(_)))
 
   def zrem[F[_]: Functor](key: ByteString, members: NonEmptyList[ByteString])(implicit I: Inject[ZSetAlgebra, F]): Free[F, Long] =
-    inject[F, ZSetAlgebra, Long](Zrem(key, members, Return(_)))
+    inject[F, ZSetAlgebra, Long](Zrem(key, members, Free.point(_)))
 
   def zremrangebyrank[F[_]: Functor](key: ByteString, start: Long, stop: Long)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Long] =
-    inject[F, ZSetAlgebra, Long](Zremrangebyrank(key, start, stop, Return(_)))
+    inject[F, ZSetAlgebra, Long](Zremrangebyrank(key, start, stop, Free.point(_)))
 
   def zremrangebyscore[F[_]: Functor](key: ByteString, start: Endpoint, stop: Endpoint)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Long] =
-    inject[F, ZSetAlgebra, Long](Zremrangebyscore(key, start, stop, Return(_)))
+    inject[F, ZSetAlgebra, Long](Zremrangebyscore(key, start, stop, Free.point(_)))
 
   def zrevrange[F[_]: Functor](
     key: ByteString,
     start: Long,
     stop: Long,
     withScores: Boolean = false)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Seq[(ByteString, Option[Double])]] =
-    inject[F, ZSetAlgebra, Seq[(ByteString, Option[Double])]](Zrevrange(key, start, stop, withScores, Return(_)))
+    inject[F, ZSetAlgebra, Seq[(ByteString, Option[Double])]](Zrevrange(key, start, stop, withScores, Free.point(_)))
 
   def zrevrangebyscore[F[_]: Functor](
     key: ByteString,
@@ -124,18 +124,18 @@ trait ZSetFunctions extends InjectFunctions {
     max: Endpoint,
     withScores: Boolean = false,
     limit: Option[Limit] = None)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Seq[(ByteString, Option[Double])]] =
-    inject[F, ZSetAlgebra, Seq[(ByteString, Option[Double])]](Zrevrangebyscore(key, min, max, withScores, limit, Return(_)))
+    inject[F, ZSetAlgebra, Seq[(ByteString, Option[Double])]](Zrevrangebyscore(key, min, max, withScores, limit, Free.point(_)))
 
   def zrevrank[F[_]: Functor](key: ByteString, member: ByteString)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Option[Long]] =
-    inject[F, ZSetAlgebra, Option[Long]](Zrevrank(key, member, Return(_)))
+    inject[F, ZSetAlgebra, Option[Long]](Zrevrank(key, member, Free.point(_)))
 
   def zscore[F[_]: Functor](key: ByteString, member: ByteString)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Option[Double]] =
-    inject[F, ZSetAlgebra, Option[Double]](Zscore(key, member, Return(_)))
+    inject[F, ZSetAlgebra, Option[Double]](Zscore(key, member, Free.point(_)))
 
   def zunionstore[F[_]: Functor](
     destination: ByteString,
     keys: NonEmptyList[ByteString],
     weights: Option[NonEmptyList[Double]] = None,
-    aggregate: Aggregate = Sum)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Double] =
-    inject[F, ZSetAlgebra, Double](Zunionstore(destination, keys, weights, aggregate, Return(_)))
+    aggregate: Aggregate = Sum)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Long] =
+    inject[F, ZSetAlgebra, Long](Zunionstore(destination, keys, weights, aggregate, Free.point(_)))
 }
