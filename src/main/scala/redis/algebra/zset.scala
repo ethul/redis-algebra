@@ -81,8 +81,8 @@ trait ZSetFunctions extends InjectFunctions {
     destination: ByteString,
     keys: NonEmptyList[ByteString],
     weights: Option[NonEmptyList[Double]] = None,
-    aggregate: Aggregate = Sum)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Double] =
-    inject[F, ZSetAlgebra, Double](Zinterstore(destination, keys, weights, aggregate, Free.point(_)))
+    aggregate: Aggregate = Sum)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Long] =
+    inject[F, ZSetAlgebra, Long](Zinterstore(destination, keys, weights, aggregate, Free.point(_)))
 
   def zrange[F[_]: Functor](
     key: ByteString,
@@ -136,6 +136,6 @@ trait ZSetFunctions extends InjectFunctions {
     destination: ByteString,
     keys: NonEmptyList[ByteString],
     weights: Option[NonEmptyList[Double]] = None,
-    aggregate: Aggregate = Sum)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Double] =
-    inject[F, ZSetAlgebra, Double](Zunionstore(destination, keys, weights, aggregate, Free.point(_)))
+    aggregate: Aggregate = Sum)(implicit I: Inject[ZSetAlgebra, F]): Free[F, Long] =
+    inject[F, ZSetAlgebra, Long](Zunionstore(destination, keys, weights, aggregate, Free.point(_)))
 }
