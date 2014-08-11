@@ -14,19 +14,28 @@ libraryDependencies += "org.specs2" %% "specs2" % "2.4" % "test"
 
 resolvers += "Sonatype releases" at "https://oss.sonatype.org/content/repositories/releases/"
 
-scalacOptions += "-feature"
-
-scalacOptions += "-deprecation"
-
-scalacOptions += "-unchecked"
-
-scalacOptions += "-language:higherKinds"
-
-scalacOptions += "-Xlint"
-
-scalacOptions += "-Xfatal-warnings"
-
-scalacOptions += "-Yno-adapted-args"
+scalacOptions ++= Seq(
+  "-deprecation",
+  "-encoding", "UTF-8",
+  "-feature",
+  "-language:higherKinds",
+  "-language:implicitConversions",
+  "-language:postfixOps",
+  "-unchecked",
+  "-Xfatal-warnings",
+  "-Xlint:_",
+  "-Yno-adapted-args",
+  "-Ywarn-adapted-args",
+  "-Ywarn-dead-code",
+  "-Ywarn-inaccessible",
+  "-Ywarn-infer-any",
+  "-Ywarn-nullary-override",
+  "-Ywarn-nullary-unit",
+  "-Ywarn-numeric-widen",
+  "-Ywarn-unused",
+  "-Ywarn-unused-import",
+  "-Ywarn-value-discard"
+)
 
 publishTo <<= version.apply { v =>
   val nexus = "https://oss.sonatype.org/"

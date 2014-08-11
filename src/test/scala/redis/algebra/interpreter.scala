@@ -30,7 +30,7 @@ sealed trait InterpreterInstances {
       def runAlgebra[A](algebra: KeyAlgebra[Mem => (A, Mem)], mem: Mem) =
         algebra match {
           case Del(k, h) =>
-            val (b, c) = k.list.foldLeft((0, mem)) {
+            val (b, c) = k.list.foldLeft((0L, mem)) {
               case ((b,c), a) =>
                 if (c.contains(string(a))) (b + 1, c - string(a)) else (b, c)
             }
